@@ -1,0 +1,77 @@
+/* Sidebar container chính */
+.sidebar {
+    width: 260px; /* Độ rộng cố định */
+    height: 100vh; /* Chiều cao full màn hình */
+    background-color: #1a1a2e; /* Màu nền tối (Dark theme) */
+    color: #a0a0a0; /* Màu chữ xám nhạt khi chưa active */
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed; /* Cố định bên trái */
+    top: 0;
+    left: 0;
+    z-index: 100; /* Đảm bảo nó nằm trên các thành phần khác */
+    box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+}
+
+/* Logo */
+.sidebar .logo {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 50px;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+/* Navigation container */
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Để đẩy nút đăng xuất xuống đáy */
+    gap: 10px; /* Khoảng cách giữa các nút menu */
+}
+
+/* Các nút menu */
+.menu-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: 12px; /* Bo tròn góc */
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* Icon trong menu */
+.menu-item span {
+    margin-right: 15px;
+    font-size: 20px;
+}
+
+/* Hiệu ứng hover */
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    transform: translateX(5px); /* Hiệu ứng di chuyển nhẹ khi hover */
+}
+
+/* --- Trạng thái ACTIVE (Đang chọn) --- */
+.menu-item.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Màu tím gradient */
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); /* Đổ bóng cho nổi bật */
+}
+
+/* Nút đăng xuất (Đặc biệt) */
+.logout-btn {
+    margin-top: auto; /* Đẩy xuống đáy cùng của nav */
+    color: #ff6b6b !important; /* Màu đỏ salmon */
+    border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.logout-btn:hover {
+    background-color: rgba(255, 107, 107, 0.1) !important;
+    color: #ff8787 !important;
+}

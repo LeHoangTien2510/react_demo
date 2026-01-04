@@ -124,7 +124,7 @@ export default function Register() {
                     <div className="user-details-button-container">
                         <button
                             type="button"
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate("/login")}
                             className="user-details-btn user-details-btn-secondary"
                         >
                             🔙 Quay lại

@@ -1,0 +1,207 @@
+/* =========================================
+   PHẦN 1: LAYOUT CHUNG & HEADER
+   (Bắt buộc phải có vì đã bỏ ProductManager.css)
+   ========================================= */
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f6fa; /* Màu nền xám nhạt cho toàn trang */
+}
+
+/* Đẩy nội dung sang phải để tránh Sidebar đè lên */
+.main-content {
+    flex: 1;
+    margin-left: 260px; /* Bằng độ rộng Sidebar */
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header trên cùng */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: white; /* Nền trắng cho header */
+    padding: 15px 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+.header-title h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 24px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #667eea;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* =========================================
+   PHẦN 2: STYLE RIÊNG CHO FORM PROFILE
+   (Code bạn cung cấp + Fix lỗi co nhỏ)
+   ========================================= */
+
+.profile-wrapper {
+    width: 100%; /* Đã fix: Chiếm hết chiều ngang */
+    max-width: 800px; /* Giới hạn độ rộng tối đa cho đẹp */
+    margin: 0 auto; /* Căn giữa */
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+/* Header bên trong form */
+.profile-header-section {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.profile-header-section h3 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.profile-header-section p {
+    color: #777;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Avatar to đùng giữa form */
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Grid Layout cho Form */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Chia 2 cột đều nhau */
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Đảm bảo ô input bung ra */
+}
+
+/* Class để ô địa chỉ dài ra 2 cột */
+.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #444;
+    font-size: 14px;
+}
+
+/* Ô input */
+.form-control {
+    width: 100%; /* QUAN TRỌNG NHẤT: Input không bị bé tí */
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box; /* Padding không làm vỡ khung */
+    background-color: #fff;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-control:disabled {
+    background-color: #f5f5f5;
+    color: #888;
+    cursor: not-allowed;
+    border-color: #eee;
+}
+
+/* Các nút bấm */
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 15px;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-save:disabled {
+    background: #ccc;
+    cursor: wait;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid #ddd;
+    color: #666;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #f5f5f5;
+    color: #333;
+    border-color: #ccc;
+}

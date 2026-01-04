@@ -3,7 +3,12 @@ import { Routes, Route } from "react-router-dom"; // Import công cụ định t
 import "./App.css";
 
 // Import các trang của bạn
-import Register from "./Register";
+import Register from "./components/Register.jsx";
+import Login from "./components/Login.jsx";
+import ProductManager from "./components/admin/ProductManagement.jsx";
+import UserProfile from "./components/UserProfile.jsx";
+import UserManagement from "./components/admin/UserManagement.jsx";
+
 // Nếu bạn chưa có file Login, tạm thời mình sẽ tạo một trang Home giả định bên dưới
 
 function App() {
@@ -14,11 +19,13 @@ function App() {
 
                 {/* 1. Trang chủ (Đường dẫn /) */}
                 {/* Tạm thời hiển thị trang Login hoặc một dòng chữ */}
-                <Route path="/" element={<h1>Đây là trang đăng nhập (Login)</h1>} />
-
+                <Route path="/login" element={<Login />} />
+                <Route path="/admin/products" element={<ProductManager />} />
                 {/* 2. Trang Đăng ký (Đường dẫn /register) */}
                 {/* Đây là chỗ quy định: Gõ /register thì hiện file Register.jsx */}
                 <Route path="/register" element={<Register />} />
+                <Route path="/profile" element={<UserProfile />} />
+                <Route path="/admin/users" element={<UserManagement />} />
 
             </Routes>
         </>

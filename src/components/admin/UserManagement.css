@@ -1,0 +1,106 @@
+/* Layout chung (copy từ file khác sang để đồng bộ nếu cần) */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f6fa;
+}
+.main-content {
+    flex: 1;
+    margin-left: 260px; /* Bằng width Sidebar */
+    padding: 30px;
+}
+
+/* Thanh công cụ tìm kiếm + nút thêm */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.search-box {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 300px;
+}
+
+/* Bảng dữ liệu */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+th {
+    background-color: #f8f9fa;
+    font-weight: 700;
+    color: #555;
+}
+
+/* Role Badge (Màu sắc cho từng quyền) */
+.role-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.role-ADMIN { background-color: #e3f2fd; color: #1976d2; }
+.role-STAFF { background-color: #e8f5e9; color: #2e7d32; }
+.role-USER { background-color: #fff3e0; color: #ef6c00; }
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.action-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 18px;
+    margin-right: 10px;
+    transition: transform 0.2s;
+}
+.action-btn:hover { transform: scale(1.2); }
+
+/* Modal */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 500px;
+    position: relative;
+}
+.form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.modal-header {
+    display: flex; justify-content: space-between; margin-bottom: 20px;
+}
+.close-btn {
+    background: none; border: none; font-size: 24px; cursor: pointer;
+}
