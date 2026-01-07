@@ -8,6 +8,7 @@ import Login from "./components/Login.jsx";
 import ProductManager from "./components/admin/ProductManagement.jsx";
 import UserProfile from "./components/UserProfile.jsx";
 import UserManagement from "./components/admin/UserManagement.jsx";
+import ShoppingPage from "./components/user/ShoppingPage.jsx";
 
 // Nếu bạn chưa có file Login, tạm thời mình sẽ tạo một trang Home giả định bên dưới
 
@@ -26,6 +27,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/admin/users" element={<UserManagement />} />
+                <Route path="/user/shopping" element={<ShoppingPage />} />
 
             </Routes>
         </>

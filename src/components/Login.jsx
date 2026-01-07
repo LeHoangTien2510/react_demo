@@ -22,42 +22,46 @@ export default function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Gọi API đăng nhập
         axios.post("http://localhost:8080/login", user)
             .then((res) => {
-                console.log("🔍 Response từ Backend:", res.data);
-
+                console.log("🔍 Response:", res.data);
                 const token = res.data.token;
 
                 if (token) {
-                    // 1. Lưu Token (Để gọi API sau này)
+                    // 1. Lưu Token & User
                     localStorage.setItem('token', token);
-
-                    // 2. 🔥 QUAN TRỌNG: Tạo object User từ phản hồi của Server
-                    // (Dựa trên LoginResponse.java của bạn)
                     const userInfo = {
                         id: res.data.id,
                         username: res.data.username,
                         fullName: res.data.fullName,
-                        roles: res.data.roles
+                        roles: res.data.roles // Server trả về ví dụ: ["ROLE_ADMIN", "ROLE_USER"]
                     };
-
-                    // 3. Lưu thông tin User vào localStorage (đè lên dữ liệu cũ "elsu")
                     localStorage.setItem('user', JSON.stringify(userInfo));
 
-                    alert(`✅ Xin chào ${userInfo.username}! Đăng nhập thành công.`);
+                    alert(`✅ Xin chào ${userInfo.fullName}!`);
 
-                    // 4. Chuyển hướng sang trang quản lý
-                    navigate("/admin/products");
+                    // 2. 🔥 LOGIC ĐIỀU HƯỚNG DỰA TRÊN ROLE
+                    const roles = userInfo.roles || [];
+
+                    if (roles.includes("ROLE_ADMIN")) {
+                        // Nếu là Admin -> Vào trang quản lý
+                        navigate("/admin/products");
+                    }
+
+
+
+                    else {
+                        // Nếu là User thường -> Vào trang mua sắm
+                        navigate("/user/shopping");
+                    }
+
                 } else {
                     alert("⚠️ Lỗi: Server không trả về Token!");
                 }
             })
             .catch((err) => {
-                console.error("❌ Lỗi đăng nhập:", err);
-                // Hiển thị lỗi từ backend nếu có (ví dụ: Sai mật khẩu)
-                const errorMsg = err.response?.data || "Đăng nhập thất bại!";
-                alert(errorMsg);
+                console.error("❌ Lỗi:", err);
+                alert("Đăng nhập thất bại!");
             });
     };
 

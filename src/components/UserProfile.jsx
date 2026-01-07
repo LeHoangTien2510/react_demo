@@ -1,13 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyProfile, updateMyProfile } from '../api/profileService.js'; // Check lại đường dẫn api nhé
-import Sidebar from './Sidebar';
+import { getMyProfile, updateMyProfile } from '../api/profileService.js';
 
-// 👇 CHỈ IMPORT ĐÚNG 1 FILE CSS NÀY
+// 👇 1. Import cả 2 Sidebar
+import Sidebar from './Sidebar';               // Sidebar dành cho Admin
+import SideBarUser from './user/SideBarUser';  // Sidebar dành cho User thường
+
 import './UserProfile.css';
 
 const UserProfile = () => {
     const navigate = useNavigate();
+
+    // 👇 2. Logic kiểm tra quyền ngay từ đầu (Lazy Initialization)
+    // Để tránh việc Sidebar bị nháy (flicker) khi load trang
+    const [isAdmin, setIsAdmin] = useState(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const userObj = JSON.parse(userStr);
+            // Kiểm tra xem mảng roles có chứa ROLE_ADMIN không
+            return userObj.roles && userObj.roles.includes("ROLE_ADMIN");
+        }
+        return false;
+    });
+
     const [currentUser, setCurrentUser] = useState(null);
     const [formData, setFormData] = useState({
         username: '', fullName: '', email: '', phone: '', address: ''
@@ -32,6 +47,14 @@ const UserProfile = () => {
                 address: data.address || ''
             });
             setCurrentUser(data);
+
+            // Cập nhật lại role từ dữ liệu mới nhất (nếu server có thay đổi role)
+            if (data.roles && data.roles.includes("ROLE_ADMIN")) {
+                setIsAdmin(true);
+            } else {
+                setIsAdmin(false);
+            }
+
         } catch (error) { console.error(error); }
     };
 
@@ -44,12 +67,15 @@ const UserProfile = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await updateMyProfile(formData); // Gửi formData thẳng nếu khớp field
+            const res = await updateMyProfile(formData);
             alert("✅ Cập nhật thành công!");
             setCurrentUser(res.data);
+
+            // Cập nhật localStorage để giữ đồng bộ
             localStorage.setItem('user', JSON.stringify(res.data));
+
         } catch (error) {
-            alert("❌ Lỗi cập nhật!");
+            alert("❌ Lỗi cập nhật: " + (error.response?.data || "Vui lòng thử lại"));
         } finally { setLoading(false); }
     };
 
@@ -57,7 +83,9 @@ const UserProfile = () => {
 
     return (
         <div className="admin-layout">
-            <Sidebar />
+            {/* 👇 3. Điều hướng hiển thị Sidebar dựa trên biến isAdmin */}
+            {isAdmin ? <Sidebar /> : <SideBarUser />}
+
             <main className="main-content">
                 <header className="top-header">
                     <div className="header-title"><h2>Cài Đặt Tài Khoản</h2></div>
@@ -72,13 +100,15 @@ const UserProfile = () => {
                         <div className="profile-header-section">
                             <div className="profile-avatar-large">{getAvatarChar()}</div>
                             <h3>{currentUser?.fullName || currentUser?.username}</h3>
-                            <p>Quản lý thông tin cá nhân</p>
+                            <p>
+                                {isAdmin ? "Quản trị viên hệ thống" : "Thành viên thân thiết"}
+                            </p>
                         </div>
                         <form onSubmit={handleSubmit}>
                             <div className="form-grid">
                                 <div className="form-group">
                                     <label>Tên đăng nhập</label>
-                                    <input type="text" value={formData.username} disabled className="form-control" />
+                                    <input type="text" value={formData.username} disabled className="form-control" style={{background: '#f1f5f9'}} />
                                 </div>
                                 <div className="form-group">
                                     <label>Họ và tên</label>
@@ -98,7 +128,7 @@ const UserProfile = () => {
                                 </div>
                             </div>
                             <div className="form-actions">
-                                <button type="button" className="btn-secondary" onClick={fetchProfileData}>Hủy</button>
+                                <button type="button" className="btn-secondary" onClick={fetchProfileData}>Hoàn tác</button>
                                 <button type="submit" className="btn-save" disabled={loading}>
                                     {loading ? "Đang lưu..." : "💾 Lưu Thay Đổi"}
                                 </button>
