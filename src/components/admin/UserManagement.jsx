@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../Sidebar';
+import Sidebar from './Sidebar.jsx';
 import { getAllUsers, createUser, updateUser, deleteUser } from '../../api/adminUserService';
 import './UserManagement.css';
 

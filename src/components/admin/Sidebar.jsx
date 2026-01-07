@@ -45,6 +45,9 @@ const Sidebar = () => {
                     <span>👥</span> Người Dùng
                 </div>
 
+                <div className={`menu-item ${isActive('/admin/categories')}`} onClick={() => navigate("/admin/categories")}>
+                    <span>📂</span> Quản lý Danh mục
+                </div>
                 {/* Hồ Sơ */}
                 <div
                     className={`menu-item ${isActive('/profile')}`}

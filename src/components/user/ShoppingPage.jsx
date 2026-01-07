@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosClient from '../../api/axiosClient';
+import UserProductService from '../../api/UserProductService'; // Import Service vừa sửa
 import SideBarUser from './SideBarUser';
 import './ShoppingPage.css';
 
@@ -12,74 +12,67 @@ const ShoppingPage = () => {
         return userStr ? JSON.parse(userStr) : null;
     });
 
-    // --- State Dữ Liệu Gốc (Master Data) ---
-    // products: Chứa toàn bộ sản phẩm tải từ Server (không bao giờ bị xóa bớt khi lọc)
+    // --- State Dữ Liệu ---
     const [allProducts, setAllProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-
-    // --- State Hiển Thị (Displayed Data) ---
-    // filteredProducts: Danh sách đang được vẽ ra màn hình
     const [filteredProducts, setFilteredProducts] = useState([]);
-
     const [cart, setCart] = useState([]);
 
-    // --- State Ô Nhập Liệu (Input State) ---
-    // Chỉ dùng để lưu tạm text người dùng gõ, chưa dùng để lọc ngay
+    // --- State Tìm Kiếm ---
     const [searchText, setSearchText] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('ALL');
 
-    // --- 1. Load dữ liệu ban đầu ---
+    // --- 1. Load dữ liệu (FIX LỖI ESLINT & LOGIC) ---
     useEffect(() => {
         if (!currentUser) {
             navigate("/login");
             return;
         }
-        fetchData();
+
+        // Định nghĩa hàm ngay trong useEffect để tránh lỗi dependency
+        const loadData = async () => {
+            try {
+                const [resProducts, resCategories] = await Promise.all([
+                    UserProductService.getAllProducts(),
+                    UserProductService.getAllCategories()
+                ]);
+
+                setAllProducts(resProducts.data);
+                setCategories(resCategories.data);
+                setFilteredProducts(resProducts.data);
+            } catch (error) {
+                console.error("Lỗi tải dữ liệu (Check Backend):", error);
+            }
+        };
+
+        loadData();
     }, [currentUser, navigate]);
 
-    const fetchData = async () => {
-        try {
-            const [resProducts, resCategories] = await Promise.all([
-                axiosClient.get('/products'),
-                axiosClient.get('/categories')
-            ]);
-
-            // Lưu vào master data
-            setAllProducts(resProducts.data);
-            setCategories(resCategories.data);
-
-            // Ban đầu hiển thị tất cả
-            setFilteredProducts(resProducts.data);
-        } catch (error) {
-            console.error("Lỗi tải dữ liệu:", error);
-        }
+    // --- 2. Xử lý hình ảnh (Dùng localhost & Ảnh dự phòng) ---
+    const getImageUrl = (imageName) => {
+        if (!imageName) return fallbackImage;
+        return `http://localhost:8080/uploads/${imageName}`;
     };
 
-    // --- 2. Logic Tìm Kiếm (Chỉ chạy khi bấm nút) ---
+    // Ảnh SVG dự phòng (hiển thị khi ảnh lỗi hoặc backend chưa chạy)
+    const fallbackImage = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2214%22%20fill%3D%22%2394a3b8%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+    // --- 3. Logic Tìm Kiếm ---
     const handleSearch = () => {
-        // Bắt đầu lọc từ danh sách gốc (allProducts)
         const result = allProducts.filter(product => {
-            // Lọc tên
             const matchName = product.name.toLowerCase().includes(searchText.toLowerCase());
-            // Lọc category
             const matchCategory = selectedCategory === 'ALL' ||
                 (product.category && product.category.id === parseInt(selectedCategory));
-
             return matchName && matchCategory;
         });
-
-        // Cập nhật danh sách hiển thị
         setFilteredProducts(result);
     };
 
-    // Xử lý khi nhấn Enter trong ô tìm kiếm
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
+        if (e.key === 'Enter') handleSearch();
     };
 
-    // --- 3. Logic Giỏ Hàng & Checkout (Giữ nguyên) ---
+    // --- 4. Logic Giỏ Hàng & Checkout ---
     const addToCart = (product) => {
         setCart(prevCart => {
             const existingItem = prevCart.find(item => item.productId === product.id);
@@ -114,34 +107,21 @@ const ShoppingPage = () => {
 
         try {
             const payload = cart.map(item => ({ productId: item.productId, quantity: item.quantity }));
-            await axiosClient.post('/user/orders/checkout', payload);
-            alert("✅ Đặt hàng thành công! Cảm ơn bạn.");
+            await UserProductService.checkout(payload);
+
+            alert("✅ Đặt hàng thành công!");
             setCart([]);
-
-            // Tải lại dữ liệu gốc để cập nhật kho
-            // Sau khi tải xong, cần gọi lại hàm search để giữ nguyên bộ lọc hiện tại của người dùng
-            // Nhưng để đơn giản, ta load lại toàn bộ và reset bộ lọc hoặc giữ nguyên tùy ý.
-            // Ở đây mình chọn cách đơn giản: Load lại và Reset về hiển thị tất cả
-            fetchData();
-            setSearchText('');
-            setSelectedCategory('ALL');
-
+            window.location.reload();
         } catch (error) {
             console.error("Lỗi thanh toán:", error);
-            const msg = error.response?.data || "Lỗi server.";
+            const msg = error.response?.data || "Lỗi server (backend chưa chạy?)";
             alert("❌ Đặt hàng thất bại: " + msg);
         }
-    };
-
-    const getImageUrl = (imageName) => {
-        if (!imageName) return "https://via.placeholder.com/200";
-        return `http://localhost:8080/uploads/${imageName}`;
     };
 
     return (
         <div className="user-layout-container">
             <SideBarUser />
-
             <main className="main-content">
                 <header style={{
                     padding: '20px 30px', background:'white', boxShadow:'0 1px 2px rgba(0,0,0,0.05)',
@@ -155,18 +135,16 @@ const ShoppingPage = () => {
 
                 <div className="shopping-inner-content">
                     <div className="products-area">
-
-                        {/* 👇 THANH TÌM KIẾM MỚI */}
+                        {/* SEARCH BAR */}
                         <div className="filter-bar">
                             <input
                                 type="text"
                                 className="search-input"
-                                placeholder="🔍 Nhập tên sản phẩm..."
+                                placeholder="🔍 Tìm sản phẩm..."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
-                                onKeyDown={handleKeyDown} // Cho phép nhấn Enter
+                                onKeyDown={handleKeyDown}
                             />
-
                             <select
                                 className="category-select"
                                 value={selectedCategory}
@@ -177,14 +155,10 @@ const ShoppingPage = () => {
                                     <option key={cat.id} value={cat.id}>{cat.categoryName || cat.name}</option>
                                 ))}
                             </select>
-
-                            {/* Nút bấm để kích hoạt tìm kiếm */}
-                            <button className="btn-search-trigger" onClick={handleSearch}>
-                                Tìm Kiếm
-                            </button>
+                            <button className="btn-search-trigger" onClick={handleSearch}>Tìm Kiếm</button>
                         </div>
 
-                        {/* GRID SẢN PHẨM (Render từ filteredProducts) */}
+                        {/* PRODUCT GRID */}
                         <div className="product-grid">
                             {filteredProducts.length > 0 ? (
                                 filteredProducts.map(product => (
@@ -193,17 +167,17 @@ const ShoppingPage = () => {
                                             src={getImageUrl(product.image)}
                                             alt={product.name}
                                             className="product-img"
-                                            onError={(e)=>e.target.src='https://via.placeholder.com/200'}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = fallbackImage;
+                                            }}
                                         />
-
                                         <div className="product-cat-tag">
                                             {product.category ? (product.category.categoryName || product.category.name) : 'Khác'}
                                         </div>
-
                                         <h3 className="product-name">{product.name}</h3>
                                         <div className="product-price">{product.price?.toLocaleString()} ₫</div>
                                         <div className="product-stock">Kho: {product.quantity}</div>
-
                                         <button
                                             className="btn-add-cart"
                                             onClick={() => addToCart(product)}
@@ -215,7 +189,7 @@ const ShoppingPage = () => {
                                 ))
                             ) : (
                                 <div className="no-result">
-                                    <p>🚫 Không tìm thấy sản phẩm nào!</p>
+                                    <p>🚫 Không tìm thấy sản phẩm!</p>
                                     <button className="btn-reset" onClick={() => {
                                         setSearchText('');
                                         setSelectedCategory('ALL');
@@ -226,14 +200,14 @@ const ShoppingPage = () => {
                         </div>
                     </div>
 
-                    {/* GIỎ HÀNG (Giữ nguyên) */}
+                    {/* CART */}
                     <aside className="cart-sidebar">
                         <div className="cart-title">
-                            🛒 Giỏ hàng <span style={{fontSize:'16px', color:'#6366f1', marginLeft:'5px'}}>({cart.length})</span>
+                            🛒 Giỏ hàng <span style={{fontSize:'16px', color:'#6366f1'}}>({cart.length})</span>
                         </div>
                         <div className="cart-items">
                             {cart.length === 0 ? (
-                                <p style={{color:'#94a3b8', textAlign:'center', marginTop:'20px'}}>Chưa có sản phẩm nào</p>
+                                <p style={{color:'#94a3b8', textAlign:'center', marginTop:'20px'}}>Giỏ hàng trống</p>
                             ) : (
                                 cart.map(item => (
                                     <div key={item.productId} className="cart-item">
@@ -243,7 +217,7 @@ const ShoppingPage = () => {
                                         </div>
                                         <div className="cart-controls">
                                             <button className="btn-qty" onClick={() => updateQuantity(item.productId, -1)}>-</button>
-                                            <span style={{fontWeight:'bold', minWidth:'20px', textAlign:'center'}}>{item.quantity}</span>
+                                            <span>{item.quantity}</span>
                                             <button className="btn-qty" onClick={() => updateQuantity(item.productId, 1)}>+</button>
                                         </div>
                                     </div>
@@ -251,11 +225,11 @@ const ShoppingPage = () => {
                             )}
                         </div>
                         <div className="cart-total">
-                            <span>Tổng cộng:</span>
+                            <span>Tổng:</span>
                             <span style={{color:'#6366f1'}}>{totalPrice.toLocaleString()} ₫</span>
                         </div>
                         <button className="btn-checkout" onClick={handleCheckout} disabled={cart.length === 0}>
-                            THANH TOÁN NGAY
+                            THANH TOÁN
                         </button>
                     </aside>
                 </div>

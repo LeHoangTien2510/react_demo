@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllProducts, createProduct, updateProduct, deleteProduct, getImageUrl, getAllCategories } from '../../api/productService.js';
 // 👇 1. Import Sidebar
-import Sidebar from '../Sidebar.jsx';
+import Sidebar from './Sidebar.jsx';
 import './ProductManager.css';
 
 const ProductManager = () => {

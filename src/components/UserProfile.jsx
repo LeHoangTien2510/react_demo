@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getMyProfile, updateMyProfile } from '../api/profileService.js';
 
 // 👇 1. Import cả 2 Sidebar
-import Sidebar from './Sidebar';               // Sidebar dành cho Admin
+import Sidebar from './admin/Sidebar.jsx';               // Sidebar dành cho Admin
 import SideBarUser from './user/SideBarUser';  // Sidebar dành cho User thường
 
 import './UserProfile.css';
