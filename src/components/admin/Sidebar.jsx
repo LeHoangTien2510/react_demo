@@ -36,7 +36,10 @@ const Sidebar = () => {
                 </div>
 
                 {/* Đơn Hàng (Ví dụ) */}
-                <div className={`menu-item ${isActive('/orders')}`}>
+                <div
+                    className={`menu-item ${isActive('/admin/orders')}`}
+                    onClick={() => navigate("/admin/orders")}
+                >
                     <span>📄</span> Đơn Hàng
                 </div>
 

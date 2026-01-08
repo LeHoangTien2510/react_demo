@@ -1,0 +1,11 @@
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-content {
+    flex: 1; /* Chiếm hết phần còn lại */
+    padding: 20px;
+    background-color: #f5f7fa;
+    overflow-y: auto;
+}
