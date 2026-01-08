@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllProducts, createProduct, updateProduct, deleteProduct, getImageUrl, getAllCategories } from '../../api/productService.js';
-// 👇 1. Import Sidebar
-import Sidebar from './Sidebar.jsx';
+
+// 👇 1. Import cả 2 Sidebar
+import Sidebar from './Sidebar.jsx';               // Admin Sidebar
+import SideBarStaff from '../staff/SideBarStaff.jsx'; // Staff Sidebar
+
 import './ProductManager.css';
 
 const ProductManager = () => {
     const navigate = useNavigate();
+
+    // 👇 2. Logic kiểm tra quyền ngay từ đầu (Lazy Init)
+    const [userRole, setUserRole] = useState(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            const roles = user.roles || [];
+            // Ưu tiên check Admin trước
+            if (roles.includes("ROLE_ADMIN")) return 'ADMIN';
+            if (roles.includes("ROLE_STAFF")) return 'STAFF';
+        }
+        return 'UNKNOWN';
+    });
 
     // --- STATE ---
     const [products, setProducts] = useState([]);
@@ -22,19 +38,6 @@ const ProductManager = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
 
-    // --- FETCH DATA ---
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        const userStr = localStorage.getItem('user');
-
-        if (!token) {
-            navigate("/login"); return;
-        }
-        if (userStr) setCurrentUser(JSON.parse(userStr));
-
-        fetchData();
-    }, [navigate]);
-
     const fetchData = async () => {
         try {
             const [productsRes, categoriesRes] = await Promise.all([
@@ -47,8 +50,29 @@ const ProductManager = () => {
         }
     };
 
-    // --- HANDLERS ---
+    // --- FETCH DATA ---
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
 
+        if (!token) {
+            navigate("/login"); return;
+        }
+
+        if (userStr) {
+            const userObj = JSON.parse(userStr);
+            setCurrentUser(userObj);
+
+            // Cập nhật lại role nếu cần thiết (phòng trường hợp localStorage thay đổi)
+            const roles = userObj.roles || [];
+            if (roles.includes("ROLE_ADMIN")) setUserRole('ADMIN');
+            else if (roles.includes("ROLE_STAFF")) setUserRole('STAFF');
+        }
+
+        fetchData();
+    }, [navigate]);
+
+    // --- HANDLERS ---
     const handleAddNewClick = () => {
         resetForm();
         setEditingId(null);
@@ -131,12 +155,18 @@ const ProductManager = () => {
         if (file) setPreviewImage(URL.createObjectURL(file));
     };
 
-    // (Đã xóa handleLogout vì Sidebar lo rồi)
+    // 👇 3. Hàm render Sidebar theo quyền
+    const renderSidebar = () => {
+        if (userRole === 'ADMIN') return <Sidebar />;
+        if (userRole === 'STAFF') return <SideBarStaff />;
+        // Mặc định fallback về Sidebar User hoặc null nếu cần
+        return <Sidebar />;
+    };
 
     return (
         <div className="admin-layout">
-            {/* 👇 2. Thay thế toàn bộ <aside> cũ bằng 1 dòng này */}
-            <Sidebar />
+            {/* 👇 4. Gọi hàm render Sidebar */}
+            {renderSidebar()}
 
             <main className="main-content">
                 <header className="top-header">
@@ -147,8 +177,10 @@ const ProductManager = () => {
                         style={{cursor: 'pointer'}}
                         title="Xem hồ sơ cá nhân"
                     >
-                        <span style={{fontWeight:'bold'}}>Hi, {currentUser?.fullName || 'Admin'}</span>
-                        <div className="avatar">A</div>
+                        <span style={{fontWeight:'bold'}}>
+                            Hi, {currentUser?.fullName || (userRole === 'STAFF' ? 'Staff' : 'Admin')}
+                        </span>
+                        <div className="avatar">{userRole === 'STAFF' ? 'S' : 'A'}</div>
                     </div>
                 </header>
 
@@ -176,8 +208,11 @@ const ProductManager = () => {
                                     <td>{p.quantity}</td>
                                     <td>{p.category ? (p.category.categoryName || p.category.name) : '-'}</td>
                                     <td>
-                                        <button className="action-btn btn-edit" onClick={() => handleEditClick(p)} title="Sửa" style={{marginRight:'5px'}}>✏️</button>
-                                        <button className="action-btn btn-delete" onClick={() => handleDelete(p.id)} title="Xóa">🗑️</button>
+                                        {/* Bọc 2 nút trong thẻ div này */}
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button className="action-btn btn-edit" onClick={() => handleEditClick(p)}>✏️</button>
+                                            <button className="action-btn btn-delete" onClick={() => handleDelete(p.id)}>🗑️</button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -187,7 +222,7 @@ const ProductManager = () => {
                 </div>
             </main>
 
-            {/* --- MODAL GIỮ NGUYÊN --- */}
+            {/* --- MODAL --- */}
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">

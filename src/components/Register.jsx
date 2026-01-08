@@ -6,6 +6,8 @@ import "./Register.css";
 export default function Register() {
     const navigate = useNavigate();
 
+    // Thêm vào đầu component
+    const [errorMessage, setErrorMessage] = useState("");
     // State khớp với RegisterRequest bên Backend
     const [registerData, setRegisterData] = useState({
         username: "",
@@ -26,16 +28,20 @@ export default function Register() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Gọi API đăng ký
+        setErrorMessage(""); // Reset lỗi cũ trước khi gửi request mới
+
         axios.post("http://localhost:8080/register", registerData)
             .then((res) => {
                 alert("Đăng ký thành công! Vui lòng đăng nhập.");
-                navigate("/login"); // Chuyển sang trang login thay vì trang chủ
+                navigate("/login");
             })
             .catch((err) => {
-                console.error("Lỗi:", err);
-                // Có thể hiển thị lỗi chi tiết từ backend nếu cần
-                alert("Đăng ký thất bại. Có thể username đã tồn tại.");
+                // Kiểm tra xem server có trả về message không
+                if (err.response && err.response.data) {
+                    setErrorMessage(err.response.data); // Set lỗi từ backend
+                } else {
+                    setErrorMessage("Có lỗi xảy ra, vui lòng thử lại sau.");
+                }
             });
     };
 
@@ -43,7 +49,11 @@ export default function Register() {
         <div className="user-details-container">
             <div className="user-details-card">
                 <h1 className="user-details-title">➕ Đăng ký tài khoản</h1>
-
+                {errorMessage && (
+                    <div style={{ color: 'red', marginBottom: '10px', textAlign: 'center' }}>
+                        ⚠️ {errorMessage}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit}>
                     {/* 1. Username (Bắt buộc) */}
                     <div className="user-details-form-group">

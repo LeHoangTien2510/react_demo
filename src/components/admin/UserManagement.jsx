@@ -198,9 +198,9 @@ const UserManagement = () => {
                                 className="form-control"
                                 style={{backgroundColor: '#f0f8ff', borderColor: '#667eea'}}
                             >
-                                <option value="USER">USER (Khách hàng)</option>
-                                <option value="STAFF">STAFF (Nhân viên)</option>
-                                <option value="ADMIN">ADMIN (Quản trị viên)</option>
+                                <option value="ROLE_USER">USER (Khách hàng)</option>
+                                <option value="ROLE_STAFF">STAFF (Nhân viên)</option>
+                                <option value="ROLE_ADMIN">ADMIN (Quản trị viên)</option>
                             </select>
 
                             <input name="username" placeholder="Username" value={formData.username} onChange={handleInputChange} disabled={!!editingUser} className="form-control" required />

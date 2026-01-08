@@ -43,15 +43,9 @@ export default function Login() {
                     // 2. 🔥 LOGIC ĐIỀU HƯỚNG DỰA TRÊN ROLE
                     const roles = userInfo.roles || [];
 
-                    if (roles.includes("ROLE_ADMIN")) {
-                        // Nếu là Admin -> Vào trang quản lý
+                    if (roles.includes("ROLE_ADMIN") || roles.includes("ROLE_STAFF")) {
                         navigate("/admin/products");
-                    }
-
-
-
-                    else {
-                        // Nếu là User thường -> Vào trang mua sắm
+                    } else {
                         navigate("/user/shopping");
                     }
 
