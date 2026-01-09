@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserProductService from '../../api/UserProductService'; // Import Service vừa sửa
+import UserProductService from '../../api/UserProductService';
 import SideBarUser from './SideBarUser';
+import ProductDetailModal from './ProductDetailModal'; // Import Modal mới tạo
 import './ShoppingPage.css';
 
 const ShoppingPage = () => {
@@ -22,14 +23,18 @@ const ShoppingPage = () => {
     const [searchText, setSearchText] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('ALL');
 
-    // --- 1. Load dữ liệu (FIX LỖI ESLINT & LOGIC) ---
+    // --- State Modal & Detail ---
+    const [showModal, setShowModal] = useState(false);
+    const [activeProduct, setActiveProduct] = useState(null);
+    const [loadingModal, setLoadingModal] = useState(false);
+
+    // --- 1. Load dữ liệu ---
     useEffect(() => {
         if (!currentUser) {
             navigate("/login");
             return;
         }
 
-        // Định nghĩa hàm ngay trong useEffect để tránh lỗi dependency
         const loadData = async () => {
             try {
                 const [resProducts, resCategories] = await Promise.all([
@@ -41,21 +46,17 @@ const ShoppingPage = () => {
                 setCategories(resCategories.data);
                 setFilteredProducts(resProducts.data);
             } catch (error) {
-                console.error("Lỗi tải dữ liệu (Check Backend):", error);
+                console.error("Lỗi tải dữ liệu:", error);
             }
         };
 
         loadData();
     }, [currentUser, navigate]);
 
-    // --- 2. Xử lý hình ảnh (Dùng localhost & Ảnh dự phòng) ---
+    // --- 2. Xử lý hình ảnh ---
     const getImageUrl = (imageName) => {
-        if (!imageName) return fallbackImage;
-        return `http://localhost:8080/uploads/${imageName}`;
+        return imageName ? `http://localhost:8080/uploads/${imageName}` : 'https://via.placeholder.com/300?text=No+Image';
     };
-
-    // Ảnh SVG dự phòng (hiển thị khi ảnh lỗi hoặc backend chưa chạy)
-    const fallbackImage = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23f1f5f9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2214%22%20fill%3D%22%2394a3b8%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E";
 
     // --- 3. Logic Tìm Kiếm ---
     const handleSearch = () => {
@@ -73,7 +74,10 @@ const ShoppingPage = () => {
     };
 
     // --- 4. Logic Giỏ Hàng & Checkout ---
-    const addToCart = (product) => {
+    const addToCart = (product, e) => {
+        // Ngăn sự kiện nổi bọt (để không mở modal khi bấm nút thêm giỏ hàng)
+        if (e) e.stopPropagation();
+
         setCart(prevCart => {
             const existingItem = prevCart.find(item => item.productId === product.id);
             if (existingItem) {
@@ -81,7 +85,7 @@ const ShoppingPage = () => {
                     item.productId === product.id ? { ...item, quantity: item.quantity + 1 } : item
                 );
             } else {
-                return [...prevCart, { productId: product.id, name: product.name, price: product.price, quantity: 1 }];
+                return [...prevCart, { productId: product.id, name: product.name, price: product.price, quantity: 1, image: product.image }];
             }
         });
     };
@@ -114,8 +118,40 @@ const ShoppingPage = () => {
             window.location.reload();
         } catch (error) {
             console.error("Lỗi thanh toán:", error);
-            const msg = error.response?.data || "Lỗi server (backend chưa chạy?)";
+            const msg = error.response?.data || "Lỗi server";
             alert("❌ Đặt hàng thất bại: " + msg);
+        }
+    };
+
+    // --- 5. LOGIC MODAL & COMMENT (MỚI THÊM) ---
+    const openProductModal = async (productId) => {
+        setLoadingModal(true);
+        try {
+            // Gọi API lấy chi tiết sản phẩm (bao gồm cả comments)
+            const res = await UserProductService.getProductDetail(productId);
+            setActiveProduct(res.data);
+            setShowModal(true);
+        } catch (error) {
+            console.error("Lỗi lấy chi tiết sản phẩm:", error);
+        } finally {
+            setLoadingModal(false);
+        }
+    };
+
+    const handleSubmitComment = async (productId, content) => {
+        try {
+            const payload = {
+                userId: currentUser.id,
+                productId: productId,
+                content: content
+            };
+            await UserProductService.addComment(payload);
+
+            // Sau khi comment xong, reload lại dữ liệu chi tiết để hiển thị comment mới
+            const res = await UserProductService.getProductDetail(productId);
+            setActiveProduct(res.data);
+        } catch (error) {
+            alert("Lỗi gửi bình luận: " + (error.response?.data || "Server error"));
         }
     };
 
@@ -162,34 +198,57 @@ const ShoppingPage = () => {
                         <div className="product-grid">
                             {filteredProducts.length > 0 ? (
                                 filteredProducts.map(product => (
-                                    <div key={product.id} className="product-card">
-                                        <img
-                                            src={getImageUrl(product.image)}
-                                            alt={product.name}
-                                            className="product-img"
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = fallbackImage;
-                                            }}
-                                        />
-                                        <div className="product-cat-tag">
-                                            {product.category ? (product.category.categoryName || product.category.name) : 'Khác'}
+                                    <div
+                                        key={product.id}
+                                        className="product-card"
+                                        onClick={() => openProductModal(product.id)} // Click thẻ -> Mở Modal
+                                    >
+                                        {/* 1. Ảnh vuông */}
+                                        <div className="card-img-wrapper">
+                                            <div className="shopee-badge">Yêu thích</div>
+                                            <img
+                                                src={getImageUrl(product.image)}
+                                                alt={product.name}
+                                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300'; }}
+                                            />
+                                            {product.quantity <= 0 && (
+                                                <div className="out-of-stock-overlay">
+                                                    <span className="oos-label">Hết hàng</span>
+                                                </div>
+                                            )}
                                         </div>
-                                        <h3 className="product-name">{product.name}</h3>
-                                        <div className="product-price">{product.price?.toLocaleString()} ₫</div>
-                                        <div className="product-stock">Kho: {product.quantity}</div>
-                                        <button
-                                            className="btn-add-cart"
-                                            onClick={() => addToCart(product)}
-                                            disabled={product.quantity <= 0 || product.status === "OUT_OF_STOCK"}
-                                        >
-                                            {product.quantity > 0 ? "+ Thêm" : "Hết hàng"}
-                                        </button>
+
+                                        {/* 2. Thông tin */}
+                                        <div className="card-body">
+                                            <div className="product-name" title={product.name}>{product.name}</div>
+
+                                            <div className="product-info-row">
+                                                <span>Kho: {product.quantity}</span>
+                                            </div>
+
+                                            {/* Footer: GIÁ TRÁI - NÚT PHẢI */}
+                                            <div className="product-footer">
+                                                <div className="price-wrapper">
+                                                    <span className="currency-symbol">₫</span>
+                                                    {new Intl.NumberFormat('vi-VN').format(product.price)}
+                                                </div>
+
+                                                {/* ĐÂY LÀ NÚT BẠN CẦN GIỮ LẠI */}
+                                                <button
+                                                    className="btn-card-add"
+                                                    disabled={product.quantity <= 0}
+                                                    onClick={(e) => addToCart(product, e)} // e.stopPropagation đã có trong hàm addToCart ở code cũ
+                                                    title="Thêm nhanh vào giỏ"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className="no-result">
-                                    <p>🚫 Không tìm thấy sản phẩm!</p>
+                                    <p>Không tìm thấy sản phẩm!</p>
                                     <button className="btn-reset" onClick={() => {
                                         setSearchText('');
                                         setSelectedCategory('ALL');
@@ -200,7 +259,7 @@ const ShoppingPage = () => {
                         </div>
                     </div>
 
-                    {/* CART */}
+                    {/* CART SIDEBAR */}
                     <aside className="cart-sidebar">
                         <div className="cart-title">
                             🛒 Giỏ hàng <span style={{fontSize:'16px', color:'#6366f1'}}>({cart.length})</span>
@@ -233,6 +292,15 @@ const ShoppingPage = () => {
                         </button>
                     </aside>
                 </div>
+
+                {/* --- RENDER MODAL TẠI ĐÂY --- */}
+                <ProductDetailModal
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                    product={activeProduct}
+                    onAddToCart={addToCart}
+                    onSubmitComment={handleSubmitComment}
+                />
             </main>
         </div>
     );
