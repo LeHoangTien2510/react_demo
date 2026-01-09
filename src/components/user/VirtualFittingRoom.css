@@ -1,0 +1,183 @@
+/* VirtualFittingRoom.css */
+
+.vto-container {
+    padding: 20px 40px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.vto-header {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.vto-header h2 {
+    font-size: 28px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 8px 0;
+}
+
+/* --- GRID LAYOUT --- */
+.vto-grid {
+    display: grid;
+    /* Dùng grid 2 cột cho Fashion Advisor (như trong code React của bạn) */
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    /* Chiều cao cố định để tạo khung dashboard, nội dung con sẽ scroll */
+    height: 75vh;
+}
+
+.vto-step {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+    /* Flex column là mấu chốt để chia vùng scroll */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.vto-step h3 {
+    font-size: 16px;
+    text-transform: uppercase;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+    margin-top: 0;
+    flex-shrink: 0; /* Header không bị co lại */
+}
+
+/* --- UPLOAD BOX --- */
+.upload-box {
+    flex: 1; /* Chiếm hết chiều cao còn lại của cột 1 */
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    background: #f8fafc;
+    transition: 0.3s;
+}
+
+.upload-box:hover { border-color: #6366f1; background: #eef2ff; }
+.user-preview-img { width: 100%; height: 100%; object-fit: contain; }
+.file-input-custom { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+/* --- OPTIONS & BUTTON (Phần tĩnh ở cột 2) --- */
+.advisor-controls {
+    flex-shrink: 0; /* Không bị co lại khi text dài */
+    margin-bottom: 15px;
+}
+
+.options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.option-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 15px;
+    color: #334155;
+}
+
+.option-card:hover { background: #f1f5f9; }
+.option-card.active {
+    background: #eef2ff;
+    border-color: #6366f1;
+    color: #4f46e5;
+    font-weight: 500;
+}
+
+.btn-magic {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 16px;
+}
+.btn-magic:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(244, 63, 94, 0.4); }
+.btn-magic:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* --- RESULT AREA (Phần cuộn ở cột 2) --- */
+/* Đây là class quan trọng để fix lỗi scroll */
+.advisor-result-scroll {
+    flex: 1; /* Chiếm toàn bộ không gian còn thừa bên dưới nút bấm */
+    overflow-y: auto; /* Cho phép cuộn dọc */
+    margin-top: 10px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+
+    /* Style cho text */
+    font-size: 15px;
+    line-height: 1.6;
+    color: #334155;
+    white-space: pre-line; /* Giữ xuống dòng */
+}
+
+.advisor-result-scroll h4 {
+    margin-top: 0;
+    color: #6366f1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Custom Scrollbar cho đẹp */
+.advisor-result-scroll::-webkit-scrollbar { width: 6px; }
+.advisor-result-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+.advisor-result-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Placeholder khi chưa có kết quả */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #94a3b8;
+    text-align: center;
+    font-style: italic;
+}
+
+/* SPINNER */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6366f1;
+}
+.spinner {
+    width: 30px; height: 30px;
+    border: 3px solid rgba(99, 102, 241, 0.3);
+    border-radius: 50%;
+    border-top-color: #6366f1;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 10px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

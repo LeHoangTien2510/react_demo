@@ -32,6 +32,13 @@ const SideBarUser = () => {
                 </div>
 
                 <div
+                    className={`menu-item ${isActive('/user/fashion-advisor') ? 'active' : ''}`}
+                    onClick={() => navigate('/user/fashion-advisor')}
+                >
+                    <span>✨</span>AI tư vấn chọn đồ
+                </div>
+
+                <div
                     className={`menu-item ${isActive('/profile') ? 'active' : ''}`}
                     onClick={() => navigate('/profile')}
                 >

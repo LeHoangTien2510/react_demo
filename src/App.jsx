@@ -12,6 +12,7 @@ import ShoppingPage from "./components/user/ShoppingPage.jsx";
 import CategoryManagement from './components/admin/CategoryManagement';
 import AdminLayout from './layouts/AdminLayout';
 import OrderManagement from './components/admin/OrderManagement';
+import FashionAdvisor from "./components/user/FashionAdvisor.jsx";
 
 // Nếu bạn chưa có file Login, tạm thời mình sẽ tạo một trang Home giả định bên dưới
 
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/user/shopping" element={<ShoppingPage />} />
                 <Route path="/admin/categories" element={<CategoryManagement />} />
                 <Route path="/admin/orders" element={<OrderManagement />} />
+                <Route path="/user/fashion-advisor" element={<FashionAdvisor />} />
             </Routes>
         </>
     );
