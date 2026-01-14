@@ -29,8 +29,8 @@ const SideBarStaff = () => {
 
                 {/* Sản Phẩm */}
                 <div
-                    className={`menu-item ${isActive('/admin/products')}`}
-                    onClick={() => navigate("/admin/products")}
+                    className={`menu-item ${isActive('/staff/products')}`}
+                    onClick={() => navigate("/staff/products")}
                 >
                     <span>📦</span> Sản Phẩm
                 </div>

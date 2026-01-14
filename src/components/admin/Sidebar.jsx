@@ -51,6 +51,13 @@ const Sidebar = () => {
                 <div className={`menu-item ${isActive('/admin/categories')}`} onClick={() => navigate("/admin/categories")}>
                     <span>📂</span> Quản lý Danh mục
                 </div>
+
+                <div
+                    className={`menu-item ${isActive('/admin/staff')}`}
+                    onClick={() => navigate("/admin/staff")}
+                >
+                    <span>🧑‍💼</span> Nhân Viên (Staff)
+                </div>
                 {/* Hồ Sơ */}
                 <div
                     className={`menu-item ${isActive('/profile')}`}

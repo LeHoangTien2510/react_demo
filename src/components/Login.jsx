@@ -43,8 +43,11 @@ export default function Login() {
                     // 2. 🔥 LOGIC ĐIỀU HƯỚNG DỰA TRÊN ROLE
                     const roles = userInfo.roles || [];
 
-                    if (roles.includes("ROLE_ADMIN") || roles.includes("ROLE_STAFF")) {
+                    if (roles.includes("ROLE_ADMIN") ) {
                         navigate("/admin/products");
+                    }
+                    else if(roles.includes("ROLE_STAFF")) {
+                        navigate("/staff/products")
                     } else {
                         navigate("/user/shopping");
                     }

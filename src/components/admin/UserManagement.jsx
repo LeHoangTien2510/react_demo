@@ -51,16 +51,17 @@ const UserManagement = () => {
     const openEditModal = (user) => {
         setEditingUser(user);
         // Lấy role hiện tại của user để fill vào form
-        // Giả sử user.roles là mảng object [{id:1, name:'ROLE_ADMIN'}]
         let currentRole = 'USER';
         if (user.roles && user.roles.length > 0) {
-            // Cắt bỏ tiền tố ROLE_ nếu có (ví dụ ROLE_ADMIN -> ADMIN)
-            currentRole = user.roles[0].name.replace('ROLE_', '');
+            // SỬA: user.roles là mảng chuỗi (String), không phải Object
+            // Cũ: currentRole = user.roles[0].name.replace('ROLE_', '');
+            // Mới: Bỏ .name đi
+            currentRole = user.roles[0].replace('ROLE_', '');
         }
 
         setFormData({
             username: user.username,
-            password: '', // Không hiển thị pass cũ
+            password: '',
             fullName: user.fullName,
             email: user.email,
             phone: user.phone,
@@ -155,10 +156,13 @@ const UserManagement = () => {
                                 <td>
                                     {/* Thêm dấu chấm hỏi (user.roles?) để nếu roles null thì không lỗi */}
                                     {user.roles && user.roles.length > 0 ? (
-                                        user.roles.map(r => (
-                                            <span key={r.id} className={`role-badge role-${r.name.replace('ROLE_', '')}`}>
-                    {r.name.replace('ROLE_', '')}
-                </span>
+                                        user.roles.map((r, index) => (
+                                            // SỬA: r là String nên không gọi r.name
+                                            // Dùng index làm key vì String có thể trùng (dù role thường ko trùng)
+                                            <span key={index} className={`role-badge role-${r.replace('ROLE_', '')}`}>
+                                                {/* Cũ: r.name.replace... -> Mới: r.replace... */}
+                                                {r.replace('ROLE_', '')}
+                                            </span>
                                         ))
                                     ) : (
                                         <span style={{color: '#999', fontSize: '12px'}}>Chưa cấp quyền</span>

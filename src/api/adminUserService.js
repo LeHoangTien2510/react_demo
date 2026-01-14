@@ -1,7 +1,7 @@
 import axiosClient from './axiosClient';
 
 const URL_USER = '/admin/users';
-
+const URL_CATEGORY = '/categories';
 // Lấy danh sách user
 export const getAllUsers = () => {
     return axiosClient.get(URL_USER);
@@ -22,4 +22,20 @@ export const updateUser = (id, userData, roleName) => {
 // Xóa user
 export const deleteUser = (id) => {
     return axiosClient.delete(`${URL_USER}/${id}`);
+};
+
+// Tạo Staff (kèm categoryIds)
+export const createStaff = (staffData) => {
+    // staffData phải khớp với StaffRequest DTO (username, password, categoryIds: [], ...)
+    return axiosClient.post(`${URL_USER}/staff`, staffData);
+};
+
+// Update Staff (kèm categoryIds)
+export const updateStaff = (id, staffData) => {
+    return axiosClient.put(`${URL_USER}/staff/${id}`, staffData);
+};
+
+// Lấy danh sách Category để hiển thị checkbox
+export const getAllCategories = () => {
+    return axiosClient.get(URL_CATEGORY);
 };
