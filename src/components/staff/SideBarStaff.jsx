@@ -37,8 +37,8 @@ const SideBarStaff = () => {
 
                 {/* Đơn Hàng (Ví dụ) */}
                 <div
-                    className={`menu-item ${isActive('/admin/orders')}`}
-                    onClick={() => navigate("/admin/orders")}
+                    className={`menu-item ${isActive('/staff/orders')}`}
+                    onClick={() => navigate("/staff/orders")}
                 >
                     <span>📄</span> Đơn Hàng
                 </div>

@@ -15,6 +15,8 @@ import OrderManagement from './components/admin/OrderManagement';
 import FashionAdvisor from "./components/user/FashionAdvisor.jsx";
 import StaffManagement from "./components/admin/StaffManagement.jsx";
 import StaffProductManagement from './components/staff/StaffProductManagement';
+import StaffOrderManagement from "./components/staff/StaffOrderManagement.jsx";
+import RevenueReport from "./components/admin/RevenueReport.jsx";
 // Nếu bạn chưa có file Login, tạm thời mình sẽ tạo một trang Home giả định bên dưới
 
 function App() {
@@ -38,6 +40,8 @@ function App() {
                 <Route path="/user/fashion-advisor" element={<FashionAdvisor />} />
                 <Route path="/admin/staff" element={<StaffManagement />} />
                 <Route path="/staff/products" element={<StaffProductManagement />} />
+                <Route path="/staff/orders" element={<StaffOrderManagement />} />
+                <Route path="/admin/revenue" element={<RevenueReport />} />
             </Routes>
         </>
     );

@@ -1,0 +1,120 @@
+/* Container riêng cho Staff */
+.staff-order-container {
+    padding: 20px;
+    background-color: #f0f2f5; /* Màu nền hơi khác một chút để phân biệt */
+    min-height: 100vh;
+}
+
+.page-title {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 24px;
+    border-bottom: 2px solid #3498db; /* Đổi màu border sang xanh staff */
+    padding-bottom: 10px;
+}
+
+/* Các class dùng chung (Copy từ file Admin sang để giữ style) */
+.table-responsive {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.order-table th, .order-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.order-table th {
+    background-color: #2980b9; /* Màu xanh Staff */
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.order-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* User Info */
+.user-info { display: flex; flex-direction: column; }
+.user-name { font-weight: 600; color: #333; }
+.user-email { font-size: 0.8rem; color: #777; }
+.price-cell { font-weight: bold; color: #d35400; }
+
+/* Status Badges */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    display: inline-block;
+    min-width: 80px;
+}
+.status-pending { background-color: #fff3cd; color: #856404; }
+.status-shipping { background-color: #cce5ff; color: #004085; }
+.status-completed { background-color: #d4edda; color: #155724; }
+.status-cancelled { background-color: #f8d7da; color: #721c24; }
+
+/* Select Box */
+.status-select {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* Product List Styling (Giống Admin) */
+.product-list-wrapper {
+    max-width: 240px;
+    font-size: 0.9rem;
+    cursor: help;
+}
+.product-item-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    width: 100%;
+}
+.bullet { color: #cbd5e1; margin-right: 6px; }
+.p-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #334155;
+    font-weight: 500;
+    margin-right: 5px;
+}
+.p-qty {
+    color: #ef4444;
+    font-weight: 700;
+    font-size: 0.8rem;
+    background: #fee2e2;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+.more-items-badge {
+    display: inline-block;
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-top: 4px;
+    margin-left: 15px;
+}
+.loading-spinner { text-align: center; padding: 40px; color: #666; }
+.no-data { text-align: center; padding: 40px; color: #777; font-style: italic; }
