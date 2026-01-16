@@ -11,7 +11,7 @@ const Sidebar = () => {
         // Thêm confirm cho chắc chắn
         if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
             localStorage.clear();
-            navigate("/login");
+            navigate("/");
         }
     };
 

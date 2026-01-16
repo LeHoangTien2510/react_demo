@@ -2,35 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllProducts, createProduct, updateProduct, deleteProduct, getImageUrl, getAllCategories } from '../../api/productService.js';
 
-// 👇 1. Import cả 2 Sidebar
-import Sidebar from './Sidebar.jsx';               // Admin Sidebar
-import SideBarStaff from '../staff/SideBarStaff.jsx'; // Staff Sidebar
+import Sidebar from './Sidebar.jsx';
+import SideBarStaff from '../staff/SideBarStaff.jsx';
+// 👇 Import Modal Chi Tiết (dùng chung modal của staff vì tính năng y hệt)
+import StaffProductDetailModal from '../StaffProductDetailModal';
 
 import './ProductManager.css';
 
 const ProductManager = () => {
     const navigate = useNavigate();
 
-    // 👇 2. Logic kiểm tra quyền ngay từ đầu (Lazy Init)
     const [userRole, setUserRole] = useState(() => {
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
             const roles = user.roles || [];
-            // Ưu tiên check Admin trước
             if (roles.includes("ROLE_ADMIN")) return 'ADMIN';
             if (roles.includes("ROLE_STAFF")) return 'STAFF';
         }
         return 'UNKNOWN';
     });
 
-    // --- STATE ---
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentUser, setCurrentUser] = useState(null);
     const [editingId, setEditingId] = useState(null);
+
+    // 👇 State cho Modal Xem Chi Tiết
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     const [formData, setFormData] = useState({
         name: '', price: '', quantity: '', description: '', status: 'AVAILABLE', categoryId: ''
@@ -50,7 +51,6 @@ const ProductManager = () => {
         }
     };
 
-    // --- FETCH DATA ---
     useEffect(() => {
         const token = localStorage.getItem('token');
         const userStr = localStorage.getItem('user');
@@ -62,17 +62,14 @@ const ProductManager = () => {
         if (userStr) {
             const userObj = JSON.parse(userStr);
             setCurrentUser(userObj);
-
-            // Cập nhật lại role nếu cần thiết (phòng trường hợp localStorage thay đổi)
             const roles = userObj.roles || [];
             if (roles.includes("ROLE_ADMIN")) setUserRole('ADMIN');
             else if (roles.includes("ROLE_STAFF")) setUserRole('STAFF');
         }
-
         fetchData();
     }, [navigate]);
 
-    // --- HANDLERS ---
+    // Các hàm xử lý Edit/Delete
     const handleAddNewClick = () => {
         resetForm();
         setEditingId(null);
@@ -116,7 +113,6 @@ const ProductManager = () => {
                 await createProduct(productPayload, selectedFile);
                 alert("✅ Thêm mới thành công!");
             }
-
             setShowModal(false);
             resetForm();
             fetchData();
@@ -148,35 +144,25 @@ const ProductManager = () => {
     };
 
     const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setSelectedFile(file);
         if (file) setPreviewImage(URL.createObjectURL(file));
     };
 
-    // 👇 3. Hàm render Sidebar theo quyền
     const renderSidebar = () => {
         if (userRole === 'ADMIN') return <Sidebar />;
         if (userRole === 'STAFF') return <SideBarStaff />;
-        // Mặc định fallback về Sidebar User hoặc null nếu cần
         return <Sidebar />;
     };
 
     return (
         <div className="admin-layout">
-            {/* 👇 4. Gọi hàm render Sidebar */}
             {renderSidebar()}
-
             <main className="main-content">
                 <header className="top-header">
                     <div className="header-title"><h2>Quản Lý Sản Phẩm</h2></div>
-                    <div
-                        className="user-profile"
-                        onClick={() => navigate("/profile")}
-                        style={{cursor: 'pointer'}}
-                        title="Xem hồ sơ cá nhân"
-                    >
+                    <div className="user-profile" onClick={() => navigate("/profile")} style={{cursor: 'pointer'}}>
                         <span style={{fontWeight:'bold'}}>
                             Hi, {currentUser?.fullName || (userRole === 'STAFF' ? 'Staff' : 'Admin')}
                         </span>
@@ -197,7 +183,11 @@ const ProductManager = () => {
                             </thead>
                             <tbody>
                             {products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map((p) => (
-                                <tr key={p.id}>
+                                <tr
+                                    key={p.id}
+                                    onClick={() => setSelectedProduct(p)} /* 👈 Click dòng mở chi tiết */
+                                    style={{cursor: 'pointer'}}
+                                >
                                     <td>
                                         <div className="product-info">
                                             <img src={getImageUrl(p.image)} className="product-img" alt="" onError={(e)=>e.target.src='https://via.placeholder.com/50'}/>
@@ -208,10 +198,26 @@ const ProductManager = () => {
                                     <td>{p.quantity}</td>
                                     <td>{p.category ? (p.category.categoryName || p.category.name) : '-'}</td>
                                     <td>
-                                        {/* Bọc 2 nút trong thẻ div này */}
                                         <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button className="action-btn btn-edit" onClick={() => handleEditClick(p)}>✏️</button>
-                                            <button className="action-btn btn-delete" onClick={() => handleDelete(p.id)}>🗑️</button>
+                                            {/* 👈 Chặn nổi bọt ở các nút này */}
+                                            <button
+                                                className="action-btn btn-edit"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEditClick(p);
+                                                }}
+                                            >
+                                                ✏️
+                                            </button>
+                                            <button
+                                                className="action-btn btn-delete"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(p.id);
+                                                }}
+                                            >
+                                                🗑️
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -222,7 +228,7 @@ const ProductManager = () => {
                 </div>
             </main>
 
-            {/* --- MODAL --- */}
+            {/* Modal Create/Edit */}
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -231,6 +237,7 @@ const ProductManager = () => {
                             <button onClick={() => setShowModal(false)} className="close-btn">×</button>
                         </div>
                         <form onSubmit={handleSubmit}>
+                            {/* Form fields giữ nguyên */}
                             <div className="form-group image-upload">
                                 <label htmlFor="file-input" className="image-preview-box">
                                     {previewImage ? <img src={previewImage} alt="Preview" /> : <span>📂 Chọn ảnh</span>}
@@ -242,20 +249,17 @@ const ProductManager = () => {
                                 <input type="number" name="price" placeholder="Giá" value={formData.price} onChange={handleInputChange} required className="form-control"/>
                                 <input type="number" name="quantity" placeholder="Số lượng" value={formData.quantity} onChange={handleInputChange} required className="form-control"/>
                             </div>
-
                             <label>Danh mục:</label>
                             <select name="categoryId" value={formData.categoryId} onChange={handleInputChange} className="form-control mb-2" required>
                                 {categories.map(cat => (
                                     <option key={cat.id} value={cat.id}>{cat.categoryName || cat.name}</option>
                                 ))}
                             </select>
-
                             <select name="status" value={formData.status} onChange={handleInputChange} className="form-control mb-2">
                                 <option value="AVAILABLE">✅ Đang bán</option>
                                 <option value="OUT_OF_STOCK">⛔ Hết hàng</option>
                             </select>
                             <textarea name="description" placeholder="Mô tả..." value={formData.description} onChange={handleInputChange} rows="3" className="form-control"></textarea>
-
                             <div className="modal-footer">
                                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">Hủy</button>
                                 <button type="submit" className="btn-primary">
@@ -265,6 +269,15 @@ const ProductManager = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* 👇 Render Modal Chi Tiết Mới */}
+            {selectedProduct && (
+                <StaffProductDetailModal
+                    isOpen={!!selectedProduct}
+                    product={selectedProduct}
+                    onClose={() => setSelectedProduct(null)}
+                />
             )}
         </div>
     );

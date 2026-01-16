@@ -17,6 +17,7 @@ import StaffManagement from "./components/admin/StaffManagement.jsx";
 import StaffProductManagement from './components/staff/StaffProductManagement';
 import StaffOrderManagement from "./components/staff/StaffOrderManagement.jsx";
 import RevenueReport from "./components/admin/RevenueReport.jsx";
+import HomePage from "./components/HomePage.jsx";
 // Nếu bạn chưa có file Login, tạm thời mình sẽ tạo một trang Home giả định bên dưới
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/staff/products" element={<StaffProductManagement />} />
                 <Route path="/staff/orders" element={<StaffOrderManagement />} />
                 <Route path="/admin/revenue" element={<RevenueReport />} />
+                <Route path="/" element={<HomePage />} />
             </Routes>
         </>
     );

@@ -1,122 +1,113 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import "./login.css"; // Đảm bảo bạn vẫn giữ file css này
+import "./Auth.css"; // Dùng file CSS mới
 
 export default function Login() {
     const navigate = useNavigate();
-
-    const [user, setUser] = useState({
-        username: "",
-        password: ""
-    });
+    const [user, setUser] = useState({ username: "", password: "" });
+    const [error, setError] = useState(""); // Thêm state lỗi để hiển thị đẹp hơn
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setUser((prev) => ({
-            ...prev,
-            [name]: value
-        }));
+        setUser((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setError(""); // Reset lỗi
 
         axios.post("http://localhost:8080/login", user)
             .then((res) => {
-                console.log("🔍 Response:", res.data);
                 const token = res.data.token;
-
                 if (token) {
-                    // 1. Lưu Token & User
                     localStorage.setItem('token', token);
                     const userInfo = {
                         id: res.data.id,
                         username: res.data.username,
                         fullName: res.data.fullName,
-                        roles: res.data.roles // Server trả về ví dụ: ["ROLE_ADMIN", "ROLE_USER"]
+                        roles: res.data.roles
                     };
                     localStorage.setItem('user', JSON.stringify(userInfo));
 
-                    alert(`✅ Xin chào ${userInfo.fullName}!`);
-
-                    // 2. 🔥 LOGIC ĐIỀU HƯỚNG DỰA TRÊN ROLE
+                    // Logic điều hướng
                     const roles = userInfo.roles || [];
-
-                    if (roles.includes("ROLE_ADMIN") ) {
-                        navigate("/admin/products");
-                    }
-                    else if(roles.includes("ROLE_STAFF")) {
-                        navigate("/staff/products")
-                    } else {
-                        navigate("/user/shopping");
-                    }
-
+                    if (roles.includes("ROLE_ADMIN")) navigate("/admin/products");
+                    else if (roles.includes("ROLE_STAFF")) navigate("/staff/products");
+                    else navigate("/user/shopping");
                 } else {
-                    alert("⚠️ Lỗi: Server không trả về Token!");
+                    setError("Server không trả về Token hợp lệ.");
                 }
             })
             .catch((err) => {
-                console.error("❌ Lỗi:", err);
-                alert("Đăng nhập thất bại!");
+                console.error("Login Error:", err);
+                setError("Tên đăng nhập hoặc mật khẩu không đúng.");
             });
     };
 
     return (
-        <div className="user-details-container">
-            <div className="user-details-card">
-                <h1 className="user-details-title">➕ Đăng nhập</h1>
+        <div className="auth-container">
+            {/* Cột trái: Ảnh Banner */}
+            <div
+                className="auth-banner"
+                style={{backgroundImage: "url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop')"}}
+            >
+                <div className="banner-content">
+                    <h2>Welcome Back</h2>
+                    <p>Tiếp tục hành trình định hình phong cách của bạn cùng Luxury Store.</p>
+                </div>
+            </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="user-details-form-group">
-                        <label className="user-details-label">UserName:</label>
-                        <input
-                            name="username"
-                            value={user.username}
-                            onChange={handleChange}
-                            className="user-details-input"
-                            required
-                        />
-                    </div>
+            {/* Cột phải: Form Login */}
+            <div className="auth-form-wrapper">
+                <div className="auth-form-content">
+                    <Link to="/" className="btn-back">← Quay lại trang chủ</Link>
 
-                    <div className="user-details-form-group">
-                        <label className="user-details-label">Password:</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={user.password}
-                            onChange={handleChange}
-                            className="user-details-input"
-                            required
-                        />
-                    </div>
+                    <Link to="/" className="brand-logo">LUXURY STORE</Link>
 
-                    <div className="user-details-button-container">
-                        <button
-                            type="button"
-                            onClick={() => navigate("/")}
-                            className="user-details-btn user-details-btn-secondary"
-                        >
-                            🔙 Quay lại
+                    <h1 className="auth-title">Đăng nhập</h1>
+                    <p className="auth-subtitle">
+                        Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
+                    </p>
+
+                    {error && <div className="error-msg">⚠️ {error}</div>}
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label className="form-label">Tên đăng nhập</label>
+                            <input
+                                name="username"
+                                value={user.username}
+                                onChange={handleChange}
+                                className="form-input"
+                                placeholder="Nhập username của bạn"
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Mật khẩu</label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={user.password}
+                                onChange={handleChange}
+                                className="form-input"
+                                placeholder="••••••••"
+                                required
+                            />
+                        </div>
+
+                        <button type="submit" className="btn-primary">
+                            Đăng nhập
                         </button>
+                    </form>
 
-                        <button
-                            type="submit"
-                            className="user-details-btn user-details-btn-primary"
-                        >
-                            ✅ Đăng nhập
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => navigate("/register")}
-                            className="user-details-btn user-details-btn-secondary"
-                            style={{ marginLeft: "10px" }}
-                        >
-                            📝 Đăng ký
-                        </button>
+                    {/* Footer nhỏ */}
+                    <div style={{textAlign: 'center', marginTop: '20px', fontSize: '0.85rem', color: '#888'}}>
+                        <p>© 2026 Luxury Store. Secure Login.</p>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     );

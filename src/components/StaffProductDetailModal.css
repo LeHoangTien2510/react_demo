@@ -1,0 +1,123 @@
+/* StaffProductDetailModal.css */
+
+/* Overlay tối màu, z-index cao hơn sidebar admin */
+.staff-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2000; /* Cao hơn mọi thứ */
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.staff-modal-content {
+    background: #fff;
+    width: 900px;
+    max-width: 95%;
+    height: 80vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Header Modal */
+.staff-modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex; justify-content: space-between; align-items: center;
+    background-color: #f8f9fa;
+}
+
+.staff-modal-header h3 {
+    margin: 0; color: #333; font-size: 1.2rem;
+}
+
+.btn-close-staff {
+    background: none; border: none; font-size: 1.5rem; color: #666; cursor: pointer;
+}
+.btn-close-staff:hover { color: #dc3545; }
+
+/* Body: Chia cột */
+.staff-modal-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden; /* Để scroll bên trong */
+}
+
+/* Cột trái: Ảnh */
+.staff-col-left {
+    width: 40%;
+    background-color: #fafafa;
+    display: flex; justify-content: center; align-items: center;
+    padding: 20px;
+    border-right: 1px solid #eee;
+}
+
+.staff-product-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Cột phải: Thông tin & Comment */
+.staff-col-right {
+    width: 60%;
+    padding: 25px;
+    overflow-y: auto; /* Scroll dọc */
+}
+
+/* Thông tin chi tiết */
+.staff-info-section h2 { margin-top: 0; color: #2c3e50; font-size: 1.5rem; }
+.staff-price { color: #d35400; font-size: 1.4rem; font-weight: bold; margin: 10px 0; }
+
+.staff-meta-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+    margin-bottom: 20px;
+    background: #f8f9fa; padding: 15px; border-radius: 6px;
+}
+.staff-meta-item strong { display: block; color: #7f8c8d; font-size: 0.85rem; }
+.staff-meta-item span { color: #2c3e50; font-weight: 600; }
+
+.staff-desc {
+    color: #555; line-height: 1.6; margin-bottom: 25px;
+    font-size: 0.95rem; text-align: justify;
+}
+
+/* Khu vực Comment (Chỉ xem) */
+.staff-comments-section {
+    border-top: 2px dashed #eee;
+    padding-top: 20px;
+}
+.staff-comments-section h4 { margin-bottom: 15px; color: #34495e; }
+
+.staff-comment-list { display: flex; flex-direction: column; gap: 15px; }
+
+.staff-comment-item {
+    display: flex; gap: 12px;
+    padding: 10px; border-radius: 6px;
+    background-color: #fff; border: 1px solid #eee;
+}
+
+.staff-cmt-avatar {
+    width: 35px; height: 35px; background-color: #3498db; color: #fff;
+    border-radius: 50%; display: flex; justify-content: center; align-items: center;
+    font-weight: bold; font-size: 0.9rem;
+}
+
+.staff-cmt-content div { font-weight: bold; font-size: 0.9rem; color: #2c3e50; }
+.staff-cmt-content p { margin: 4px 0; font-size: 0.9rem; color: #555; }
+.staff-cmt-date { font-size: 0.75rem; color: #95a5a6; }
+
+/* Status Badges */
+.status-tag { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+.status-ok { background: #e8f5e9; color: #2e7d32; }
+.status-out { background: #ffebee; color: #c62828; }
+
+@keyframes fadeIn { from {opacity:0} to {opacity:1} }
+@keyframes slideUp { from {transform:translateY(20px); opacity:0} to {transform:translateY(0); opacity:1} }

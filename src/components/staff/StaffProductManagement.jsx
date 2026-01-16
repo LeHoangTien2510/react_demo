@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SideBarStaff from './SideBarStaff'; // 👇 Sidebar dành riêng cho Staff
-import StaffProductService from '../../api/StaffProductService'; // 👇 Service mới tạo
-import { getImageUrl } from '../../api/productService'; // Hàm helper lấy ảnh (dùng chung)
-import './StaffProductManagement.css'; // 👇 CSS mới tạo
+import SideBarStaff from './SideBarStaff';
+import StaffProductService from '../../api/StaffProductService';
+import { getImageUrl } from '../../api/productService';
+import StaffProductDetailModal from '../StaffProductDetailModal'; // 👈 Import Modal Mới
+import './StaffProductManagement.css';
 
 const StaffProductManagement = () => {
     const navigate = useNavigate();
 
-    // State
+    // State dữ liệu
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentUser, setCurrentUser] = useState(null);
 
-    // Modal State
+    // State Modal Edit
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
 
-    // Form Data
+    // State Modal Xem Chi Tiết (Mới)
+    const [selectedProduct, setSelectedProduct] = useState(null);
+
+    // Form Data Edit
     const [formData, setFormData] = useState({
         name: '',
         price: 0,
@@ -27,9 +31,7 @@ const StaffProductManagement = () => {
         status: 'AVAILABLE'
     });
 
-    // 1️⃣ Load thông tin Staff & Danh sách sản phẩm
     useEffect(() => {
-        // Lấy thông tin user từ localStorage để hiển thị "Xin chào..."
         const userStr = localStorage.getItem('user');
         if (userStr) {
             setCurrentUser(JSON.parse(userStr));
@@ -40,7 +42,6 @@ const StaffProductManagement = () => {
     const fetchStaffProducts = async () => {
         try {
             setLoading(true);
-            // Gọi API filter dành riêng cho Staff
             const res = await StaffProductService.getAll();
             setProducts(res.data || res);
         } catch (error) {
@@ -50,49 +51,41 @@ const StaffProductManagement = () => {
         }
     };
 
-    // 2️⃣ Mở Modal Sửa
+    // Mở Modal Sửa
     const handleEditClick = (product) => {
         setEditingProduct(product);
         setFormData({
             name: product.name,
             price: product.price,
-            quantity: product.quantity, // Load số lượng lên để xem
+            quantity: product.quantity,
             description: product.description || '',
             status: product.status || 'AVAILABLE'
         });
         setIsModalOpen(true);
     };
 
-    // 3️⃣ Xử lý Input
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    // 4️⃣ Submit Update
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!editingProduct) return;
 
         try {
-            // Chuẩn bị payload: KHÔNG gửi quantity để đảm bảo an toàn (dù UI đã disable)
             const payload = {
                 name: formData.name,
                 price: parseFloat(formData.price),
                 description: formData.description,
                 status: formData.status
-                // quantity: Bỏ qua
             };
-
             await StaffProductService.update(editingProduct.id, payload);
-
             alert("✅ Cập nhật thành công!");
             setIsModalOpen(false);
-            fetchStaffProducts(); // Tải lại danh sách
-
+            fetchStaffProducts();
         } catch (error) {
             console.error("Lỗi update:", error);
-            // Hiển thị thông báo lỗi từ backend (ví dụ: Không đúng category)
             const msg = error.response?.data?.message || error.response?.data || "Có lỗi xảy ra";
             alert("❌ " + msg);
         }
@@ -100,10 +93,7 @@ const StaffProductManagement = () => {
 
     return (
         <div className="staff-product-layout">
-            {/* Sidebar bên trái */}
             <SideBarStaff />
-
-            {/* Nội dung bên phải */}
             <div className="staff-main-content">
                 <div className="staff-header">
                     <h2>📦 Quản Lý Sản Phẩm</h2>
@@ -112,7 +102,6 @@ const StaffProductManagement = () => {
                     </div>
                 </div>
 
-                {/* Toolbar Tìm kiếm */}
                 <div className="staff-toolbar">
                     <input
                         className="search-input"
@@ -122,7 +111,6 @@ const StaffProductManagement = () => {
                     />
                 </div>
 
-                {/* Bảng sản phẩm */}
                 <div className="staff-table-container">
                     <table className="staff-table">
                         <thead>
@@ -145,7 +133,12 @@ const StaffProductManagement = () => {
                             products
                                 .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
                                 .map(p => (
-                                    <tr key={p.id}>
+                                    <tr
+                                        key={p.id}
+                                        onClick={() => setSelectedProduct(p)} /* 👈 Click dòng để mở chi tiết */
+                                        style={{cursor: 'pointer'}}
+                                        className="row-hover"
+                                    >
                                         <td>#{p.id}</td>
                                         <td>
                                             <div className="product-cell">
@@ -171,7 +164,14 @@ const StaffProductManagement = () => {
                                             </span>
                                         </td>
                                         <td>
-                                            <button className="btn-edit-staff" onClick={() => handleEditClick(p)}>
+                                            {/* 👈 stopPropagation quan trọng */}
+                                            <button
+                                                className="btn-edit-staff"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEditClick(p);
+                                                }}
+                                            >
                                                 ✏️ Sửa
                                             </button>
                                         </td>
@@ -183,7 +183,7 @@ const StaffProductManagement = () => {
                 </div>
             </div>
 
-            {/* MODAL CHỈNH SỬA */}
+            {/* Modal Edit (Giữ nguyên) */}
             {isModalOpen && (
                 <div className="staff-modal-overlay">
                     <div className="staff-modal">
@@ -191,69 +191,34 @@ const StaffProductManagement = () => {
                             <h3>✏️ Cập nhật sản phẩm</h3>
                             <button onClick={() => setIsModalOpen(false)} style={{background:'none', border:'none', fontSize:'1.5rem', cursor:'pointer'}}>×</button>
                         </div>
-
                         <form onSubmit={handleSubmit}>
+                            {/* ... Form input fields giữ nguyên ... */}
                             <div className="form-group" style={{marginBottom: '15px'}}>
                                 <label>Tên sản phẩm:</label>
-                                <input
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    className="form-control"
-                                    required
-                                />
+                                <input name="name" value={formData.name} onChange={handleInputChange} className="form-control" required />
                             </div>
-
                             <div className="form-grid">
                                 <div className="form-group">
-                                    <label>Giá bán (VNĐ):</label>
-                                    <input
-                                        type="number"
-                                        name="price"
-                                        value={formData.price}
-                                        onChange={handleInputChange}
-                                        className="form-control"
-                                        required
-                                    />
+                                    <label>Giá bán:</label>
+                                    <input type="number" name="price" value={formData.price} onChange={handleInputChange} className="form-control" required />
                                 </div>
                                 <div className="form-group">
-                                    <label>Số lượng (Chỉ xem):</label>
-                                    <input
-                                        type="number"
-                                        name="quantity"
-                                        value={formData.quantity}
-                                        className="form-control"
-                                        disabled // ⛔ BỊ VÔ HIỆU HÓA (READ-ONLY)
-                                        title="Nhân viên không được phép sửa tồn kho"
-                                    />
+                                    <label>Số lượng:</label>
+                                    <input type="number" name="quantity" value={formData.quantity} className="form-control" disabled />
                                 </div>
                             </div>
-
                             <div className="form-group" style={{marginTop: '15px'}}>
                                 <label>Trạng thái:</label>
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleInputChange}
-                                    className="form-control"
-                                >
+                                <select name="status" value={formData.status} onChange={handleInputChange} className="form-control">
                                     <option value="AVAILABLE">✅ Đang bán</option>
                                     <option value="OUT_OF_STOCK">⛔ Hết hàng</option>
                                     <option value="HIDDEN">👁️ Ẩn sản phẩm</option>
                                 </select>
                             </div>
-
                             <div className="form-group" style={{marginTop: '15px'}}>
-                                <label>Mô tả chi tiết:</label>
-                                <textarea
-                                    name="description"
-                                    rows="4"
-                                    value={formData.description}
-                                    onChange={handleInputChange}
-                                    className="form-control"
-                                ></textarea>
+                                <label>Mô tả:</label>
+                                <textarea name="description" rows="4" value={formData.description} onChange={handleInputChange} className="form-control"></textarea>
                             </div>
-
                             <div className="modal-footer">
                                 <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>Hủy bỏ</button>
                                 <button type="submit" className="btn-primary">Lưu thay đổi</button>
@@ -261,6 +226,15 @@ const StaffProductManagement = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* 👇 Render Modal Chi Tiết Mới */}
+            {selectedProduct && (
+                <StaffProductDetailModal
+                    isOpen={!!selectedProduct}
+                    product={selectedProduct}
+                    onClose={() => setSelectedProduct(null)}
+                />
             )}
         </div>
     );

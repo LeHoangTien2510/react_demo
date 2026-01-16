@@ -13,7 +13,7 @@ const SideBarUser = () => {
         if (window.confirm("Bạn chắc chắn muốn đăng xuất?")) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            navigate("/login");
+            navigate("/");
         }
     };
 
