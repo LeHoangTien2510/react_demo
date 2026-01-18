@@ -19,6 +19,8 @@ import StaffOrderManagement from "./components/staff/StaffOrderManagement.jsx";
 import RevenueReport from "./components/admin/RevenueReport.jsx";
 import HomePage from "./components/HomePage.jsx";
 import UserOrderHistory from "./components/user/UserOrderHistory.jsx";
+import StockManagement from "./components/staff/StockManagement.jsx";
+import StockHistory from "./components/admin/StockHistory.jsx";
 // Nếu bạn chưa có file Login, tạm thời mình sẽ tạo một trang Home giả định bên dưới
 
 function App() {
@@ -46,6 +48,9 @@ function App() {
                 <Route path="/admin/revenue" element={<RevenueReport />} />
                 <Route path="/" element={<HomePage />} />
                 <Route path="/user/history" element={<UserOrderHistory />} />
+                <Route path="/staff/stock-manage" element={<StockManagement />} />
+                <Route path="/admin/stock-history" element={<StockHistory />} />
+
             </Routes>
         </>
     );

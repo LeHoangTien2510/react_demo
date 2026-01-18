@@ -60,11 +60,20 @@ const Sidebar = () => {
                 </div>
 
                 <div
+                    className={`menu-item ${isActive('/admin/stock-history')}`}
+                    onClick={() => navigate("/admin/stock-history")}
+                >
+                    <span>📊</span> Lịch sử Kho
+                </div>
+
+                <div
                     className={`menu-item ${isActive('/admin/revenue')}`}
                     onClick={() => navigate("/admin/revenue")}
                 >
                     <span>💰</span> Doanh Thu
                 </div>
+
+
 
                 {/* Hồ Sơ */}
                 <div
