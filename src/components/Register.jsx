@@ -55,7 +55,7 @@ export default function Register() {
             <div className="auth-form-wrapper">
                 <div className="auth-form-content">
                     <Link to="/" className="btn-back">← Quay lại trang chủ</Link>
-                    <Link to="/" className="brand-logo">LUXURY STORE</Link>
+                    <Link to="/" className="brand-logo">MEGA MART</Link>
 
                     <h1 className="auth-title">Tạo tài khoản</h1>
                     <p className="auth-subtitle">

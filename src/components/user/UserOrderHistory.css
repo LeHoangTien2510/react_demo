@@ -1,0 +1,151 @@
+/* src/pages/user/UserOrderHistory.css */
+
+/* Layout chia cột: Sidebar bên trái, Content bên phải */
+.user-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+}
+
+.user-main-content {
+    flex: 1;
+    padding: 30px;
+    margin-left: 260px; /* Bằng với width của Sidebar nếu sidebar position fixed, nếu flex thì bỏ dòng này */
+    /* Lưu ý: Nếu SideBarUser của bạn dùng position:fixed thì cần margin-left.
+       Nếu dùng flexbox thông thường thì không cần. */
+}
+
+/* Container chính */
+.history-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.page-title {
+    margin-bottom: 25px;
+    color: #1f2937;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 10px;
+}
+
+/* Card từng đơn hàng */
+.order-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+/* Header của Card */
+.order-header {
+    background-color: #f9fafb;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.order-id {
+    font-weight: 700;
+    color: #374151;
+    margin-right: 15px;
+}
+
+.order-date {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+/* Body của Card (List sản phẩm) */
+.order-body {
+    padding: 15px 20px;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.item-row:last-child {
+    border-bottom: none;
+}
+
+.item-name {
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.item-quantity {
+    margin-left: 10px;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+.item-price {
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Footer của Card */
+.order-footer {
+    padding: 15px 20px;
+    background-color: #fff;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-price {
+    font-size: 1.1rem;
+    color: #111827;
+}
+
+.total-price span {
+    font-weight: bold;
+    color: #d97706; /* Màu cam đậm */
+}
+
+/* Nút bấm */
+.btn-cancel {
+    background-color: #fff;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background-color: #ef4444;
+    color: white;
+}
+
+/* Badges trạng thái */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-warning { background-color: #fef3c7; color: #d97706; } /* Pending */
+.badge-info { background-color: #dbeafe; color: #2563eb; }    /* Shipping */
+.badge-success { background-color: #d1fae5; color: #059669; } /* Completed */
+.badge-danger { background-color: #fee2e2; color: #dc2626; }  /* Cancelled */
+
+/* Loading & Empty State */
+.loading-text, .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #6b7280;
+    font-size: 1.1rem;
+}

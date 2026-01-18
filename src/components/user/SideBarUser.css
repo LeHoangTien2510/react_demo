@@ -1,0 +1,71 @@
+/* src/components/SideBarUser.css */
+
+.sidebar {
+    width: 260px;             /* Cố định chiều rộng */
+    min-width: 260px;         /* Không cho phép co nhỏ hơn */
+    height: 100vh;            /* Full chiều cao màn hình */
+    background-color: #1a202c; /* Màu nền tối (giống ảnh của bạn) */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    box-sizing: border-box;
+    flex-shrink: 0;           /* QUAN TRỌNG: Ngăn không cho Sidebar bị co lại trong Flexbox */
+
+    /* Nếu bạn muốn sidebar trượt theo màn hình (Sticky) */
+    position: sticky;
+    top: 0;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /* Đảm bảo chữ không bị wrap lung tung */
+    white-space: nowrap;
+}
+
+.menu {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-item {
+    padding: 15px 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #cbd5e1;
+}
+
+.menu-item:hover {
+    background-color: #2d3748;
+    color: #fff;
+}
+
+.menu-item.active {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); /* Màu gradient tím giống ảnh */
+    color: white;
+    font-weight: 600;
+    border-right: 4px solid white;
+}
+
+.menu-item.logout {
+    margin-top: auto;
+    border-top: 1px solid #2d3748;
+    color: #fc8181; /* Màu đỏ nhạt cho nút logout */
+}
+
+.menu-item.logout:hover {
+    background-color: #742a2a;
+    color: white;
+}

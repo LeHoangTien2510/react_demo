@@ -10,7 +10,7 @@ const UserManagement = () => {
     // --- STATE ---
     const [users, setUsers] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [editingUser, setEditingUser] = useState(null); // null = mode tạo mới
+    const [editingUser, setEditingUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     // Form data
@@ -20,7 +20,8 @@ const UserManagement = () => {
         fullName: '',
         email: '',
         phone: '',
-        role: 'USER' // Mặc định là USER
+        address: '', // ✅ Thêm field address
+        role: 'USER'
     });
 
     // --- FETCH DATA ---
@@ -44,19 +45,16 @@ const UserManagement = () => {
 
     const openCreateModal = () => {
         setEditingUser(null);
-        setFormData({ username: '', password: '', fullName: '', email: '', phone: '', role: 'USER' });
+        // ✅ Reset cả address
+        setFormData({ username: '', password: '', fullName: '', email: '', phone: '', address: '', role: 'USER' });
         setShowModal(true);
     };
 
     const openEditModal = (user) => {
         setEditingUser(user);
-        // Lấy role hiện tại của user để fill vào form
         let currentRole = 'USER';
         if (user.roles && user.roles.length > 0) {
-            // SỬA: user.roles là mảng chuỗi (String), không phải Object
-            // Cũ: currentRole = user.roles[0].name.replace('ROLE_', '');
-            // Mới: Bỏ .name đi
-            currentRole = user.roles[0].replace('ROLE_', '');
+            currentRole = user.roles[0];
         }
 
         setFormData({
@@ -65,6 +63,7 @@ const UserManagement = () => {
             fullName: user.fullName,
             email: user.email,
             phone: user.phone,
+            address: user.address || '', // ✅ Load address từ user cũ
             role: currentRole
         });
         setShowModal(true);
@@ -76,10 +75,11 @@ const UserManagement = () => {
             // Payload body (RegisterRequest)
             const payload = {
                 username: formData.username,
-                password: formData.password, // Backend cần handle: nếu null/empty thì không đổi pass khi edit
+                password: formData.password,
                 fullName: formData.fullName,
                 email: formData.email,
-                phone: formData.phone
+                phone: formData.phone,
+                address: formData.address // ✅ Gửi kèm address xuống backend
             };
 
             if (editingUser) {
@@ -93,7 +93,7 @@ const UserManagement = () => {
             }
 
             setShowModal(false);
-            fetchUsers(); // Load lại danh sách
+            fetchUsers();
         } catch (error) {
             console.error(error);
             alert("❌ Có lỗi xảy ra! Kiểm tra lại thông tin.");
@@ -154,13 +154,9 @@ const UserManagement = () => {
                                 </td>
                                 <td>{user.fullName}</td>
                                 <td>
-                                    {/* Thêm dấu chấm hỏi (user.roles?) để nếu roles null thì không lỗi */}
                                     {user.roles && user.roles.length > 0 ? (
                                         user.roles.map((r, index) => (
-                                            // SỬA: r là String nên không gọi r.name
-                                            // Dùng index làm key vì String có thể trùng (dù role thường ko trùng)
                                             <span key={index} className={`role-badge role-${r.replace('ROLE_', '')}`}>
-                                                {/* Cũ: r.name.replace... -> Mới: r.replace... */}
                                                 {r.replace('ROLE_', '')}
                                             </span>
                                         ))
@@ -193,7 +189,6 @@ const UserManagement = () => {
                             <button onClick={() => setShowModal(false)} className="close-btn">×</button>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            {/* Role Selection */}
                             <label><strong>Phân Quyền:</strong></label>
                             <select
                                 name="role"
@@ -216,12 +211,15 @@ const UserManagement = () => {
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 className="form-control"
-                                required={!editingUser} // Bắt buộc khi tạo mới
+                                required={!editingUser}
                             />
 
                             <input name="fullName" placeholder="Họ và tên" value={formData.fullName} onChange={handleInputChange} className="form-control" />
                             <input name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} className="form-control" />
                             <input name="phone" placeholder="Số điện thoại" value={formData.phone} onChange={handleInputChange} className="form-control" />
+
+                            {/* ✅ ĐÃ THÊM INPUT ADDRESS Ở ĐÂY */}
+                            <input name="address" placeholder="Địa chỉ" value={formData.address} onChange={handleInputChange} className="form-control" />
 
                             <div style={{textAlign: 'right', marginTop: '10px'}}>
                                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary" style={{marginRight:'10px'}}>Hủy</button>

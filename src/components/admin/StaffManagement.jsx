@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar.jsx'; // 👇 Import Sidebar
+import Sidebar from './Sidebar.jsx';
 import {
     getAllUsers,
     createUser,
@@ -9,9 +9,8 @@ import {
     updateStaff,
     deleteUser
 } from '../../api/adminUserService';
-import './UserManagement.css'; // 👇 Dùng chung CSS với UserManagement cho đồng bộ
+import './UserManagement.css';
 import CategoryService from '../../api/CategoryService';
-// Nếu bạn muốn style riêng thì giữ file StaffManagement.css, nhưng khuyến khích dùng chung layout
 
 const StaffManagement = () => {
     const navigate = useNavigate();
@@ -20,7 +19,7 @@ const StaffManagement = () => {
     const [users, setUsers] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(''); // Thêm tìm kiếm
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Form state
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,9 +33,9 @@ const StaffManagement = () => {
         fullName: '',
         email: '',
         phone: '',
-        address: '',
-        role: 'ROLE_STAFF', // Mặc định là STAFF ở trang này
-        categoryIds: []     // Dành riêng cho Staff
+        address: '', // ✅ Đã có
+        role: 'ROLE_STAFF',
+        categoryIds: []
     });
 
     // 1️⃣ Load data ban đầu
@@ -49,7 +48,7 @@ const StaffManagement = () => {
             setLoading(true);
             const [userRes, cateRes] = await Promise.all([
                 getAllUsers(),
-                CategoryService.getAll() // 👈 Gọi từ CategoryService chuẩn hơn
+                CategoryService.getAll()
             ]);
             setUsers(userRes.data || userRes);
             setCategories(cateRes.data || cateRes);
@@ -86,7 +85,6 @@ const StaffManagement = () => {
             setCurrentUserId(user.id);
 
             const roleName = user.roles && user.roles.length > 0 ? Array.from(user.roles)[0] : 'ROLE_STAFF';
-            // Lấy danh sách category id hiện có
             const currentCateIds = user.managedCategories
                 ? user.managedCategories.map(c => c.id)
                 : [];
@@ -97,7 +95,7 @@ const StaffManagement = () => {
                 fullName: user.fullName,
                 email: user.email,
                 phone: user.phone,
-                address: user.address,
+                address: user.address || '', // ✅ Load địa chỉ từ user cũ
                 role: roleName,
                 categoryIds: currentCateIds
             });
@@ -111,7 +109,7 @@ const StaffManagement = () => {
                 fullName: '',
                 email: '',
                 phone: '',
-                address: '',
+                address: '', // ✅ Reset địa chỉ
                 role: 'ROLE_STAFF',
                 categoryIds: []
             });
@@ -124,7 +122,6 @@ const StaffManagement = () => {
         e.preventDefault();
         try {
             if (formData.role === 'ROLE_STAFF') {
-                // Logic STAFF (Có category)
                 const staffPayload = { ...formData, categoryIds: formData.categoryIds };
                 if (isEditMode) {
                     await updateStaff(currentUserId, staffPayload);
@@ -132,7 +129,6 @@ const StaffManagement = () => {
                     await createStaff(staffPayload);
                 }
             } else {
-                // Logic User thường (Nếu lỡ chọn role khác)
                 const { categoryIds, ...normalPayload } = formData;
                 if (isEditMode) {
                     await updateUser(currentUserId, normalPayload, formData.role);
@@ -140,7 +136,6 @@ const StaffManagement = () => {
                     await createUser(normalPayload, formData.role);
                 }
             }
-
             alert("✅ Thành công!");
             setIsModalOpen(false);
             fetchInitialData();
@@ -164,15 +159,12 @@ const StaffManagement = () => {
 
     return (
         <div className="admin-layout">
-            {/* 👇 Thêm Sidebar vào đây */}
             <Sidebar />
-
             <main className="main-content">
                 <header style={{ marginBottom: '20px' }}>
                     <h2>🧑‍💼 Quản Lý Nhân Viên (Staff)</h2>
                 </header>
 
-                {/* Toolbar: Search + Button */}
                 <div className="toolbar">
                     <input
                         className="search-box"
@@ -185,7 +177,6 @@ const StaffManagement = () => {
                     </button>
                 </div>
 
-                {/* Table */}
                 <div className="table-container">
                     <table>
                         <thead>
@@ -211,7 +202,6 @@ const StaffManagement = () => {
                                     </td>
                                     <td>{u.fullName}</td>
                                     <td>
-                                        {/* Xử lý hiển thị Badge cho Role */}
                                         {u.roles && Array.from(u.roles).map((r, idx) => (
                                             <span key={idx} className={`role-badge role-${r.replace('ROLE_', '')}`}>
                                                 {r.replace('ROLE_', '')}
@@ -219,7 +209,6 @@ const StaffManagement = () => {
                                         ))}
                                     </td>
                                     <td>
-                                        {/* Hiển thị danh mục quản lý */}
                                         {u.managedCategories && u.managedCategories.length > 0 ? (
                                             <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                                                 {u.managedCategories.map(c => (
@@ -254,7 +243,6 @@ const StaffManagement = () => {
                             <button onClick={() => setIsModalOpen(false)} className="close-btn">×</button>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            {/* Role Selection */}
                             <label><strong>Vai trò:</strong></label>
                             <select
                                 name="role"
@@ -268,29 +256,15 @@ const StaffManagement = () => {
                                 <option value="ROLE_USER">USER</option>
                             </select>
 
-                            <input
-                                name="username"
-                                placeholder="Username"
-                                value={formData.username}
-                                onChange={handleInputChange}
-                                className="form-control"
-                                required
-                            />
-
-                            <input
-                                type="password"
-                                name="password"
-                                placeholder={isEditMode ? "Mật khẩu (để trống nếu không đổi)" : "Mật khẩu"}
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                className="form-control"
-                            />
-
+                            <input name="username" placeholder="Username" value={formData.username} onChange={handleInputChange} className="form-control" required />
+                            <input type="password" name="password" placeholder={isEditMode ? "Mật khẩu (để trống nếu không đổi)" : "Mật khẩu"} value={formData.password} onChange={handleInputChange} className="form-control" />
                             <input name="fullName" placeholder="Họ và tên" value={formData.fullName} onChange={handleInputChange} className="form-control" />
                             <input name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} className="form-control" />
                             <input name="phone" placeholder="Số điện thoại" value={formData.phone} onChange={handleInputChange} className="form-control" />
 
-                            {/* 🔥 PHẦN CHỌN CATEGORY (Chỉ hiện khi Role là STAFF) */}
+                            {/* ✅ ĐÃ THÊM INPUT ADDRESS Ở ĐÂY */}
+                            <input name="address" placeholder="Địa chỉ" value={formData.address} onChange={handleInputChange} className="form-control" />
+
                             {formData.role === 'ROLE_STAFF' && (
                                 <div style={{ marginTop: '15px', background: '#f8f9fa', padding: '10px', borderRadius: '5px' }}>
                                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>

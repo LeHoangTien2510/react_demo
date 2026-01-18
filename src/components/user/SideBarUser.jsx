@@ -45,8 +45,12 @@ const SideBarUser = () => {
                     <span>👤</span> Hồ Sơ Cá Nhân
                 </div>
 
-                {/* Thêm menu Lịch sử đơn hàng nếu muốn sau này */}
-                {/* <div className="menu-item">📦 Lịch Sử Đơn</div> */}
+                <div
+                    className={`menu-item ${isActive('/user/history') ? 'active' : ''}`}
+                    onClick={() => navigate('/user/history')}
+                >
+                    <span>📦</span> Danh Sách Đơn Hàng
+                </div>
             </nav>
 
             <div style={{ marginTop: 'auto' }}>

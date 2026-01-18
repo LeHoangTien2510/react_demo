@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import "./Auth.css"; // Dùng file CSS mới
+import "./Auth.css";
 
 export default function Login() {
     const navigate = useNavigate();
     const [user, setUser] = useState({ username: "", password: "" });
-    const [error, setError] = useState(""); // Thêm state lỗi để hiển thị đẹp hơn
+    const [error, setError] = useState("");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -15,7 +15,7 @@ export default function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setError(""); // Reset lỗi
+        setError("");
 
         axios.post("http://localhost:8080/login", user)
             .then((res) => {
@@ -30,7 +30,6 @@ export default function Login() {
                     };
                     localStorage.setItem('user', JSON.stringify(userInfo));
 
-                    // Logic điều hướng
                     const roles = userInfo.roles || [];
                     if (roles.includes("ROLE_ADMIN")) navigate("/admin/products");
                     else if (roles.includes("ROLE_STAFF")) navigate("/staff/products");
@@ -47,14 +46,18 @@ export default function Login() {
 
     return (
         <div className="auth-container">
-            {/* Cột trái: Ảnh Banner */}
+            {/* Cột trái: Ảnh Banner - Đã đổi sang ảnh E-commerce tổng hợp */}
             <div
                 className="auth-banner"
-                style={{backgroundImage: "url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop')"}}
+                style={{
+                    // Ảnh minh họa mua sắm online/payment (Laptop + Thẻ)
+                    backgroundImage: "url('https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?q=80&w=2070&auto=format&fit=crop')"
+                }}
             >
                 <div className="banner-content">
                     <h2>Welcome Back</h2>
-                    <p>Tiếp tục hành trình định hình phong cách của bạn cùng Luxury Store.</p>
+                    {/* Slogan tổng quát hơn, không giới hạn ở quần áo */}
+                    <p>Khám phá thế giới công nghệ và tiện ích cùng Mega Mart.</p>
                 </div>
             </div>
 
@@ -63,7 +66,7 @@ export default function Login() {
                 <div className="auth-form-content">
                     <Link to="/" className="btn-back">← Quay lại trang chủ</Link>
 
-                    <Link to="/" className="brand-logo">LUXURY STORE</Link>
+                    <Link to="/" className="brand-logo">Mega Mart</Link>
 
                     <h1 className="auth-title">Đăng nhập</h1>
                     <p className="auth-subtitle">
@@ -103,9 +106,8 @@ export default function Login() {
                         </button>
                     </form>
 
-                    {/* Footer nhỏ */}
                     <div style={{textAlign: 'center', marginTop: '20px', fontSize: '0.85rem', color: '#888'}}>
-                        <p>© 2026 Luxury Store. Secure Login.</p>
+                        <p>© 2026 Mega Mart. Secure Login.</p>
                     </div>
                 </div>
             </div>
