@@ -63,3 +63,15 @@ export const updateProduct = (id, productData, imageFile) => {
 export const getAllCategories = () => {
     return axiosClient.get('/categories');
 };
+
+export const predictProductPotential = (categoryId, price) => {
+    // Lưu ý: baseURL đã là "http://localhost:8080/api"
+    // Nên ở đây ta chỉ cần gọi "/ai/predict" là đủ.
+
+    return axiosClient.post('/ai/predict', null, {
+        params: {
+            categoryId: categoryId,
+            price: price
+        }
+    });
+};

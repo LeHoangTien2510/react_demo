@@ -143,8 +143,8 @@ const UserManagement = () => {
                         </thead>
                         <tbody>
                         {users.filter(u =>
-                            u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            (u.email && u.email.toLowerCase().includes(searchTerm.toLowerCase()))
+                            (u.username || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (u.email || "").toLowerCase().includes(searchTerm.toLowerCase())
                         ).map(user => (
                             <tr key={user.id}>
                                 <td>#{user.id}</td>

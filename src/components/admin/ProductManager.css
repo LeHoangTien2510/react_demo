@@ -295,3 +295,46 @@ td:last-child div {
     cursor: pointer;
     font-weight: 600;
 }
+
+.btn-ai {
+    background: linear-gradient(135deg, #8b5cf6, #d946ef); /* Màu tím hồng AI */
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.5);
+    transition: transform 0.2s;
+}
+
+.btn-ai:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px -1px rgba(139, 92, 246, 0.6);
+}
+
+/* Style cho hộp kết quả dự đoán */
+.ai-result-box {
+    text-align: center;
+    padding: 20px;
+    background: #fdf4ff; /* Nền tím nhạt */
+    border: 2px dashed #d946ef;
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.ai-score {
+    font-size: 24px;
+    font-weight: 800;
+    color: #9333ea;
+    margin: 10px 0;
+}
+
+.ai-label {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: white;
+}
+/* Các màu label tùy mức độ */
+.label-low { background: #64748b; }       /* Xám */
+.label-medium { background: #f59e0b; }     /* Cam */
+.label-high { background: #10b981; }       /* Xanh lá */
+.label-very-high { background: #ef4444; }  /* Đỏ rực */

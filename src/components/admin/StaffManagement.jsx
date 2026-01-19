@@ -191,8 +191,9 @@ const StaffManagement = () => {
                         <tbody>
                         {users
                             .filter(u =>
-                                u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                (u.fullName && u.fullName.toLowerCase().includes(searchTerm.toLowerCase()))
+                                (u.username || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (u.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (u.email || "").toLowerCase().includes(searchTerm.toLowerCase())
                             )
                             .map(u => (
                                 <tr key={u.id}>

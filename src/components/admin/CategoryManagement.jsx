@@ -98,7 +98,7 @@ const CategoryManagement = () => {
                 <h2 className="page-title">📂 Quản Lý Danh Mục</h2>
 
                 <div className="form-section">
-                    <div className="input-group">
+                    <div className="form-group-custom">
                         <label>Tên Danh Mục:</label>
                         <input
                             type="text"

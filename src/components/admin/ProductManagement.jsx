@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllProducts, createProduct, updateProduct, deleteProduct, getImageUrl, getAllCategories } from '../../api/productService.js';
+import { getAllProducts, createProduct, updateProduct, deleteProduct, getImageUrl, getAllCategories,predictProductPotential } from '../../api/productService.js';
 
 import Sidebar from './Sidebar.jsx';
 import SideBarStaff from '../staff/SideBarStaff.jsx';
@@ -29,7 +29,9 @@ const ProductManager = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentUser, setCurrentUser] = useState(null);
     const [editingId, setEditingId] = useState(null);
-
+    const [showAIModal, setShowAIModal] = useState(false);
+    const [aiResult, setAiResult] = useState(null);
+    const [isPredicting, setIsPredicting] = useState(false);
     // 👇 State cho Modal Xem Chi Tiết
     const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -156,6 +158,37 @@ const ProductManager = () => {
         return <Sidebar />;
     };
 
+    const handleAIPredict = async (product) => {
+        if (!product.category) {
+            alert("⚠️ Sản phẩm này chưa có danh mục, AI không thể dự đoán!");
+            return;
+        }
+
+        setIsPredicting(true);
+        setAiResult(null); // Reset kết quả cũ
+        setShowAIModal(true); // Mở modal loading ngay
+
+        try {
+            // Gọi API (Backend đã setup ở bài trước)
+            const response = await predictProductPotential(product.category.id, product.price);
+            setAiResult(response.data); // Lưu kết quả trả về
+        } catch (error) {
+            console.error("Lỗi AI:", error);
+            alert("❌ Không thể kết nối tới dịch vụ AI.");
+            setShowAIModal(false);
+        } finally {
+            setIsPredicting(false);
+        }
+    };
+
+    const getPotentialColorClass = (text) => {
+        if (!text) return '';
+        if (text.includes("Rất Cao")) return "label-very-high";
+        if (text.includes("Cao")) return "label-high";
+        if (text.includes("Trung Bình")) return "label-medium";
+        return "label-low";
+    };
+
     return (
         <div className="admin-layout">
             {renderSidebar()}
@@ -190,7 +223,16 @@ const ProductManager = () => {
                                 >
                                     <td>
                                         <div className="product-info">
-                                            <img src={getImageUrl(p.image)} className="product-img" alt="" onError={(e)=>e.target.src='https://via.placeholder.com/50'}/>
+                                            <img
+                                                src={getImageUrl(p.image)}
+                                                className="product-img"
+                                                alt={p.name}
+                                                onError={(e) => {
+                                                    e.target.onerror = null; // Ngắt vòng lặp ngay lập tức
+                                                    // Dùng ảnh base64 màu xám nhạt (nhẹ, không cần tải file)
+                                                    e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Crect width='50' height='50' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%2364748b'%3ENo IMG%3C/text%3E%3C/svg%3E";
+                                                }}
+                                            />
                                             <div><strong>{p.name}</strong><br/><small>#{p.id}</small></div>
                                         </div>
                                     </td>
@@ -217,6 +259,16 @@ const ProductManager = () => {
                                                 }}
                                             >
                                                 🗑️
+                                            </button>
+                                            <button
+                                                className="action-btn btn-ai"
+                                                title="Dự đoán doanh thu bằng AI"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleAIPredict(p);
+                                                }}
+                                            >
+                                                🤖
                                             </button>
                                         </div>
                                     </td>
@@ -278,6 +330,49 @@ const ProductManager = () => {
                     product={selectedProduct}
                     onClose={() => setSelectedProduct(null)}
                 />
+            )}
+
+            {showAIModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{maxWidth: '400px', textAlign: 'center'}}>
+                        <div className="modal-header" style={{justifyContent: 'center'}}>
+                            <h3 style={{margin:0}}>🤖 AI Phân Tích Tiềm Năng</h3>
+                        </div>
+
+                        {isPredicting ? (
+                            <div style={{padding: '30px'}}>
+                                <div className="spinner"></div> {/* Bạn có thể thêm css xoay tròn */}
+                                <p>Đang tính toán...</p>
+                            </div>
+                        ) : aiResult ? (
+                            <div className="ai-result-body">
+                                <p>Với mức giá <b>{aiResult.price?.toLocaleString()} ₫</b> thuộc danh mục này:</p>
+
+                                <div className="ai-result-box">
+                                    <span>Dự đoán doanh thu:</span>
+                                    <div className="ai-score">
+                                        {aiResult.predicted_revenue?.toLocaleString()} VNĐ
+                                    </div>
+                                    <div className={`ai-label ${getPotentialColorClass(aiResult.potential)}`}>
+                                        {aiResult.potential}
+                                    </div>
+                                </div>
+
+                                <p style={{fontSize: '13px', color: '#64748b'}}>
+                                    *Kết quả dựa trên dữ liệu lịch sử bán hàng.
+                                </p>
+                            </div>
+                        ) : (
+                            <p>Không có dữ liệu.</p>
+                        )}
+
+                        <div className="modal-footer" style={{justifyContent: 'center'}}>
+                            <button onClick={() => setShowAIModal(false)} className="btn-primary">
+                                Đã Hiểu
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

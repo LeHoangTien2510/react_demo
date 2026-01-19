@@ -190,3 +190,45 @@
     margin-left: 15px; /* Thụt vào cho thẳng hàng */
     font-weight: 500;
 }
+
+/* 1. Giới hạn chiều rộng cột Khách hàng để tránh bảng quá dài */
+.order-table td:nth-child(2) { /* Cột thứ 2 là cột Khách hàng */
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Hiển thị tooltip tên đầy đủ khi hover vào khách hàng */
+.order-table td:nth-child(2):hover {
+    white-space: normal;
+    overflow: visible;
+    position: relative;
+    /* Lưu ý: Nếu muốn tooltip xịn hơn thì dùng title attribute như bạn làm với Product */
+}
+
+/* 2. KỸ THUẬT STICKY COLUMN (Ghim cột Hành động) */
+/* Áp dụng cho cả thẻ th (tiêu đề) và td (nội dung) của cột cuối cùng */
+.order-table th:last-child,
+.order-table td:last-child {
+    position: sticky;
+    right: 0; /* Dính chặt vào lề phải */
+    z-index: 10; /* Nổi lên trên các cột khác khi cuộn */
+    border-left: 2px solid #eee; /* Đường kẻ ngăn cách cho rõ */
+}
+
+/* Riêng ô dữ liệu (td) cần nền trắng để che nội dung chạy bên dưới */
+.order-table td:last-child {
+    background-color: white;
+    box-shadow: -5px 0 10px rgba(0,0,0,0.05); /* Tạo bóng đổ nhẹ bên trái cho đẹp */
+}
+
+/* Riêng ô tiêu đề (th) cần nền màu xanh đậm giống header cũ */
+.order-table th:last-child {
+    background-color: #34495e; /* Lấy theo màu gốc trong css cũ */
+    z-index: 11; /* Header phải cao hơn nội dung */
+}
+
+/* Xử lý hiệu ứng Hover: Khi hover vào dòng, ô sticky cũng phải đổi màu theo */
+.order-table tr:hover td:last-child {
+    background-color: #f1f1f1; /* Lấy theo màu hover gốc */
+}
