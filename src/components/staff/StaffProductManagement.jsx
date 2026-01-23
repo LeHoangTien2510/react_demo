@@ -146,7 +146,7 @@ const StaffProductManagement = () => {
                                                     src={getImageUrl(p.image)}
                                                     className="product-thumb"
                                                     alt=""
-                                                    onError={(e) => e.target.src = 'https://via.placeholder.com/50'}
+                                                    onError={(e) => e.target.src = '/assets/no-image.jpg'}
                                                 />
                                                 <span className="product-name">{p.name}</span>
                                             </div>

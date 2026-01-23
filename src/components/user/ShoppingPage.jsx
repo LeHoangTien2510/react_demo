@@ -55,7 +55,10 @@ const ShoppingPage = () => {
 
     // --- 2. Xử lý hình ảnh ---
     const getImageUrl = (imageName) => {
-        return imageName ? `http://localhost:8080/uploads/${imageName}` : 'https://via.placeholder.com/300?text=No+Image';
+        // Nếu có tên ảnh thì lấy từ server, không thì dùng ảnh nội bộ
+        return imageName
+            ? `http://localhost:8080/uploads/${imageName}`
+            : '/assets/no-image.png'; // Đường dẫn đến file trong thư mục public
     };
 
     // --- 3. Logic Tìm Kiếm ---
@@ -110,15 +113,36 @@ const ShoppingPage = () => {
         if (!window.confirm(`Xác nhận thanh toán đơn hàng ${totalPrice.toLocaleString()} ₫?`)) return;
 
         try {
-            const payload = cart.map(item => ({ productId: item.productId, quantity: item.quantity }));
+            // 1. Tạo danh sách item đúng chuẩn
+            const items = cart.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity
+            }));
+
+            // 2. --- QUAN TRỌNG NHẤT ---
+            // Phải đóng gói vào một Object (JSON Object), KHÔNG ĐƯỢC gửi Array trần trụi.
+            // Key "cartItems" bên dưới là tôi đoán dựa trên tên biến trong OrderService.
+            // Nếu vẫn lỗi, bạn phải mở file PlaceOrderRequest.java để xem tên biến là gì.
+            const payload = {
+                cartItems: items,
+                voucherCode: "" // Thêm trường này vì OrderService có xử lý voucher
+            };
+
+            // Log ra xem thử payload trông như nào (F12 để xem)
+            console.log("Dữ liệu gửi đi:", payload);
+
             await UserProductService.checkout(payload);
 
             alert("✅ Đặt hàng thành công!");
             setCart([]);
+
+            // Xóa cache giỏ hàng nếu có lưu local
+            // localStorage.removeItem('cart');
+
             window.location.reload();
         } catch (error) {
             console.error("Lỗi thanh toán:", error);
-            const msg = error.response?.data || "Lỗi server";
+            const msg = error.response?.data?.message || JSON.stringify(error.response?.data) || "Lỗi server";
             alert("❌ Đặt hàng thất bại: " + msg);
         }
     };
@@ -209,7 +233,10 @@ const ShoppingPage = () => {
                                             <img
                                                 src={getImageUrl(product.image)}
                                                 alt={product.name}
-                                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300'; }}
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = '/assets/no-image.jpg'; // Thay link placeholder bằng ảnh local
+                                                }}
                                             />
                                             {product.quantity <= 0 && (
                                                 <div className="out-of-stock-overlay">

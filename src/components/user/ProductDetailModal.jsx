@@ -17,7 +17,7 @@ const ProductDetailModal = ({
     const getImageUrl = (imageName) => {
         return imageName
             ? `http://localhost:8080/uploads/${imageName}`
-            : 'https://via.placeholder.com/300?text=No+Image';
+            : '/assets/no-image.jpg';
     };
 
     const formatPrice = (price) => {
