@@ -238,7 +238,7 @@ const StaffManagement = () => {
             {/* --- MODAL FORM --- */}
             {isModalOpen && (
                 <div className="modal-overlay">
-                    <div className="modal-content">
+                    <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                         <div className="modal-header">
                             <h3>{isEditMode ? 'Cập nhật Staff' : 'Thêm Staff Mới'}</h3>
                             <button onClick={() => setIsModalOpen(false)} className="close-btn">×</button>
